@@ -12,15 +12,18 @@ typedef struct {
     int numCellsY;
     size_t totalNumCells;
     float cellSize;
-    float density;
 
     float* velocityX;
     float* velocityY;
     float* newVelocityX;
     float* newVelocityY;
+
     float* pressure;
+
+    float density;
     float* smokeDensity;
     float* newSmokeDensity;
+
     float* solidFlags;
 
 } Fluid;
@@ -37,8 +40,18 @@ void fluid_free(Fluid* fluidPtr);
 
 
 /**
- * Applies gravity to fluid's velocity field
+ * Applies gravity to fluid's velocity field.
  */
 void fluid_integrate(Fluid* fluid, float deltaTime, float gravityForce);
+
+/**
+ * Adjusts variables to account for incompressibility.
+ */
+void fluid_solve_incompressibility(Fluid* fluidPtr, int numIterations, float deltaTime, float overRelaxation);
+
+/**
+ * Extrapolates velocities to the edge of the fluid grid.
+ */
+void fluid_extrapolate(Fluid* fluidPtr);
 
 #endif 

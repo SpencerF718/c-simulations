@@ -82,5 +82,64 @@ void fluid_integrate(Fluid* fluidPtr, float deltaTime, float gravityForce) {
             }
         }
     }
+}
 
+void fluid_solve_incompressibility(Fluid* fluidPtr, int numIterations, float deltaTime, float overRelaxation) {
+
+    int numRows = fluidPtr->numCellsY;
+    float coefficientPressure = fluidPtr->density * fluidPtr->cellSize / deltaTime;
+
+    for (int n = 0; n < numIterations; n++) {
+        for (int i = 1; i < fluidPtr->numCellsX; i++) {
+            for (int j = 1; j < fluidPtr->numCellsY; j++) {
+
+                size_t currentCellIndex = i * numRows + j;
+
+                if (fluidPtr->solidFlags[currentCellIndex] == 0.0f) {
+                    continue;
+                }
+
+                float solidFlagCurrent = fluidPtr->solidFlags[currentCellIndex];
+                float solidFlagLeft    = fluidPtr->solidFlags[(i - 1) * numRows + j];
+                float solidFlagRight   = fluidPtr->solidFlags[(i + 1) * numRows + j];
+                float solidFlagBelow   = fluidPtr->solidFlags[i * numRows + (j - 1)];
+                float solidFlagAbove   = fluidPtr->solidFlags[i * numRows + (j + 1)];
+
+                float solidSumNeighbors = solidFlagAbove + solidFlagBelow + solidFlagLeft + solidFlagRight;
+
+                if (solidSumNeighbors == 0.0f) {
+                    continue;
+                }
+
+                 float divergence = fluidPtr->velocityX[(i + 1) * numRows + j] - fluidPtr->velocityX[currentCellIndex] +
+                                    fluidPtr->velocityY[i * numRows + (j + 1)] - fluidPtr->velocityY[currentCellIndex];
+                
+                float pressureChange = -divergence / solidSumNeighbors;
+                pressureChange *= overRelaxation;
+
+                fluidPtr->pressure[currentCellIndex] += coefficientPressure * pressureChange;
+
+                fluidPtr->velocityX[currentCellIndex] -= solidFlagLeft * pressureChange;
+                fluidPtr->velocityX[(i + 1) * numRows + j] += solidFlagRight * pressureChange;
+                fluidPtr->velocityY[currentCellIndex] -= solidFlagBelow * pressureChange;
+                fluidPtr->velocityY[i * numRows + (j + 1)] += solidFlagAbove * pressureChange;
+
+            }
+        }
+    }
+}
+
+void fluid_extrapolate(Fluid* fluidPtr) {
+
+    int numRows = fluidPtr->numCellsY;
+
+    for (int i = 0; i < fluidPtr->numCellsX; i++) {
+        fluidPtr->velocityX[i * numRows + 0] = fluidPtr->velocityX[i * numRows + 1];
+        fluidPtr->velocityX[i * numRows + (fluidPtr->numCellsY - 1)] = fluidPtr->velocityX[i * numRows + (fluidPtr->numCellsY - 2)];
+    }
+
+    for (int j = 0; j < fluidPtr->numCellsY; j++) {
+        fluidPtr->velocityY[0 * numRows + j] = fluidPtr->velocityY[1 * numRows + j];
+        fluidPtr->velocityY[(fluidPtr->numCellsX - 1) * numRows + j] = fluidPtr->velocityY[(fluidPtr->numCellsX - 2) * numRows + j];
+    }
 }
