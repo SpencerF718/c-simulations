@@ -33,6 +33,12 @@ Fluid* fluid_init(float density, int numX, int numY, float cellSize);
 /**
  * Frees memory for Fluid struct
  */
-void fluid_free(Fluid* fluid_ptr);
+void fluid_free(Fluid* fluidPtr);
+
+
+/**
+ * Applies gravity to fluid's velocity field
+ */
+void fluid_integrate(Fluid* fluid, float deltaTime, float gravityForce);
 
 #endif 

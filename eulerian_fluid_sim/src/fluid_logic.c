@@ -39,30 +39,48 @@ Fluid* fluid_init(float density, int numX, int numY, float cellSize) {
 
 }
 
-void fluid_free(Fluid* fluid_ptr) {
+void fluid_free(Fluid* fluidPtr) {
 
-    if (fluid_ptr == NULL) {
+    if (fluidPtr == NULL) {
         return;
     }
 
-    free(fluid_ptr->velocityX);
-    free(fluid_ptr->velocityY);
-    free(fluid_ptr->newVelocityX);
-    free(fluid_ptr->newVelocityY);
-    free(fluid_ptr->pressure);
-    free(fluid_ptr->solidFlags);
-    free(fluid_ptr->smokeDensity);
-    free(fluid_ptr->newSmokeDensity);
+    free(fluidPtr->velocityX);
+    free(fluidPtr->velocityY);
+    free(fluidPtr->newVelocityX);
+    free(fluidPtr->newVelocityY);
+    free(fluidPtr->pressure);
+    free(fluidPtr->solidFlags);
+    free(fluidPtr->smokeDensity);
+    free(fluidPtr->newSmokeDensity);
 
-    fluid_ptr->velocityX = NULL;
-    fluid_ptr->velocityY = NULL;
-    fluid_ptr->newVelocityX = NULL;
-    fluid_ptr->newVelocityY = NULL;
-    fluid_ptr->pressure = NULL;
-    fluid_ptr->solidFlags = NULL;
-    fluid_ptr->smokeDensity = NULL;
-    fluid_ptr->newSmokeDensity = NULL;
+    fluidPtr->velocityX = NULL;
+    fluidPtr->velocityY = NULL;
+    fluidPtr->newVelocityX = NULL;
+    fluidPtr->newVelocityY = NULL;
+    fluidPtr->pressure = NULL;
+    fluidPtr->solidFlags = NULL;
+    fluidPtr->smokeDensity = NULL;
+    fluidPtr->newSmokeDensity = NULL;
 
-    free(fluid_ptr);    
+    free(fluidPtr);    
     
+}
+
+void fluid_integrate(Fluid* fluidPtr, float deltaTime, float gravityForce) {
+
+    int numRows = fluidPtr->numCellsY;
+
+    for (int i = 1; i < fluidPtr->numCellsX; i++) {
+        for (int j = 1; j < fluidPtr->numCellsY; j++) {
+
+            size_t currentIndex = i * numRows + j;
+            size_t cellBelowIndex = i * numRows + (j - 1);
+
+            if (fluidPtr->solidFlags[currentIndex] != 0.0f && fluidPtr->solidFlags[cellBelowIndex] != 0.0f) {
+                fluidPtr->velocityY[currentIndex] += gravityForce * deltaTime;
+            }
+        }
+    }
+
 }
