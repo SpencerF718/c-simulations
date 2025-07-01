@@ -1,3 +1,6 @@
+# Build
+build/
+
 # Prerequisites
 *.d
 
@@ -23,7 +26,7 @@
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
+## *.dll # removed for SDL2.dll in /lib
 *.so
 *.so.*
 *.dylib
@@ -53,3 +56,7 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Editor specific files
+.vscode/
+
