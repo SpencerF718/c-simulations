@@ -23,7 +23,7 @@ pacman -S mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gcc
 
 3. Clone the Repository:
 ```bash
-git clone [c-simulations] /c/c-simulations
+git clone https://github.com/SpencerF718/c-simulations /c/c-simulations
 ```
 ```bash
 cd /c/c-simulations
