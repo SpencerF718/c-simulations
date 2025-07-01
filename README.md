@@ -37,7 +37,7 @@ cd /c/c-simulations
 cd /c/c-simulations
 ```
 
-2. run the makefile:
+2. Run the makefile:
 
 ```bash
 make
