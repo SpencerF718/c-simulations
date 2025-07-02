@@ -42,7 +42,7 @@ cd /c/c-simulations
 2. Run the makefile:
 
 ```bash
-make
+make PROJECT=eulerian_fluid_sim # The command will follow the pattern: make PROJECT={simulation folder name}
 ```
 
 3. Navigate to the 'build' directory:
@@ -54,7 +54,7 @@ cd build
 4. Run the simulation:
 
 ```bash
-./sdl_gui_app.exe
+./eulurian_fluid_sim_app.exe # The command will follow the pattern: ./{simulation folder name}_app.exe
 ```
 
 5. Clean the project:
