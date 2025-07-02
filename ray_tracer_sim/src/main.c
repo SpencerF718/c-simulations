@@ -1,6 +1,6 @@
 #include <SDL.h>
 #include <stdio.h>
-#include "ray_tracer.h" 
+#include "ray_logic.h" 
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
