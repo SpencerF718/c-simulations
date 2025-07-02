@@ -5,6 +5,8 @@ A collection of various simulations, all built in C.
 
 ### Eulerian Fluid Simulation
 
+![Demo of Eulerian Fluid Simulation](assets\gif\eulerian_smoke.gif)
+
 - 2D Eulerian fluid simulation
 - Interaction with mouse input
 - Rendering with SDL2

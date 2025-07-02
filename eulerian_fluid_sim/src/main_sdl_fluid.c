@@ -25,8 +25,9 @@ void render_fluid(SDL_Renderer* renderer, const Fluid* fluid) {
             size_t index = (size_t)i * fluid->numCellsY + j;
             float smoke = fluid->smokeDensity[index];
 
-            // map smoke density to grayscale
-            Uint8 color = (Uint8)((1.0f - fminf(smoke * 1.5f, 1.0f)) * 255.0f); 
+            // uncomment the following code if you want gray smoke on a white background.
+            // Uint8 color = (Uint8)((1.0f - fminf(smoke * 1.5f, 1.0f)) * 255.0f);
+            Uint8 color = (Uint8)(fminf(smoke * 255.0f, 255.0f));
 
             SDL_SetRenderDrawColor(renderer, color, color, color, 255);
 
@@ -84,8 +85,13 @@ int main(int argc, char* argv[]) {
 
 
     float density = 1.0f;
+
+    /* increase the value to change the 'resolution' of the smoke (WARNING: EXPENSIVE) 
+       recommended value is 100
+    */
     int numX = 100; 
     int numY = 100; 
+
     float cellSize = 1.0f / numY; 
 
     Fluid* fluid = fluid_init(density, numX, numY, cellSize);
