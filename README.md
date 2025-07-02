@@ -15,7 +15,7 @@ A collection of various simulations, all built in C.
 
 1. Install MSYS2 from [https://www.msys2.org/](https://www.msys2.org/):
 
-2. In MSYS2 MinGW 64-bit terminal, run the following commands to install the necessary tools:
+2. In MSYS2 MinGW 64-bit terminal, run the following commands to install Make, pkg-config, and SDL2.
 ```bash
 pacman -Syu
 ```
