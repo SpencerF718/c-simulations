@@ -31,7 +31,6 @@ void run_ray_tracer(void) {
         return;
     }
 
-    // Basic render loop
     while (!quit) {
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_QUIT) {
