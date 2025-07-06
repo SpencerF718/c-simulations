@@ -48,7 +48,7 @@ int ray_intersect_sphere(Ray ray, Sphere sphere, double* t);
 Sphere sphere_create(Vec3 center, double radius, Color color);
 
 // function to create a new camera
-Camera camera_create(Vec3 position, Vec3 lookAt, Vec3 upVector);
+Camera camera_create(Vec3 position, Vec3 lookAt, Vec3 upVector, double fov);
 
 // main ray tracing loop
 void run_ray_tracer(void);
