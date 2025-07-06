@@ -10,6 +10,9 @@ typedef struct {
     double z;
 } Vec3;
 
+// color struct with xyz mapped to RGB
+typedef Vec3 Color;
+
 // ray struct
 typedef struct {
     Vec3 origin;
@@ -19,7 +22,7 @@ typedef struct {
 // sphere struct
 typedef struct {
     Vec3 center;
-    double radius
+    double radius;
     Color color;
 } Sphere;
 
@@ -30,8 +33,6 @@ typedef struct {
     double fov;
 } Camera;
 
-// color struct with xyz mapped to RGB
-typedef Vec3 Color;
 
 // vec3 math functions
 Vec3 vec3_add(Vec3 a, Vec3 b);
