@@ -4,6 +4,7 @@
 #include <SDL.h>
 
 #define EPSILON 0.001
+#define DEFAULT_FOV 90
 
 // 3D vector struct
 typedef struct {
