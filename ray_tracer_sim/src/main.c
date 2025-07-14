@@ -76,6 +76,10 @@ int main(int argc, char* argv[]) {
     Color lightColor = {1.0, 1.0, 1.0};
     Color ambientLight = {0.1, 0.1, 0.1};
 
+    Color specularLightColor = {1.0, 1.0, 1.0};
+    double shininess = SHININESS_CONST;
+
+
     double aspectRatio = (double)WINDOW_WIDTH / WINDOW_HEIGHT;
     double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
     double halfHeight = tan(halfFovRad);
@@ -139,9 +143,16 @@ int main(int argc, char* argv[]) {
                     Vec3 lightDirection = vec3_normalize(vec3_sub(lightPosition, intersectionPoint));
                     double diffuseFactor = fmax(0.0, vec3_dot(surfaceNormal, lightDirection));
 
-                    pixelColor.x = hitSphere->color.x * lightColor.x * diffuseFactor + ambientLight.x;
-                    pixelColor.y = hitSphere->color.y * lightColor.y * diffuseFactor + ambientLight.y;
-                    pixelColor.z = hitSphere->color.z * lightColor.z * diffuseFactor + ambientLight.z;
+                    Vec3 viewDirection = vec3_normalize(vec3_sub(sceneCamera.position, intersectionPoint));
+                    Vec3 reflectionDirection = vec3_sub(vec3_scale(surfaceNormal, 2.0 * vec3_dot(surfaceNormal, lightDirection)), lightDirection);
+                    reflectionDirection = vec3_normalize(reflectionDirection);
+
+                    double specFactor = fmax(0.0, vec3_dot(reflectionDirection, viewDirection));
+                    specFactor = pow(specFactor, shininess);
+
+                    pixelColor.x = hitSphere->color.x * lightColor.x * diffuseFactor + ambientLight.x + specularLightColor.x * specFactor;
+                    pixelColor.y = hitSphere->color.y * lightColor.y * diffuseFactor + ambientLight.y + specularLightColor.y * specFactor;
+                    pixelColor.z = hitSphere->color.z * lightColor.z * diffuseFactor + ambientLight.z + specularLightColor.z * specFactor;
                 }
 
                 Uint8 r = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.x)) * 255);
