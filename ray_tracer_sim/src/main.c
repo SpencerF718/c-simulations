@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <stdio.h>
+#include "ray_logic.h"
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 800;
@@ -37,6 +38,22 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
+
+    Vec3 cameraPosition = {0.0, 0.0, 0.0};
+    Vec3 cameraLookAt = {0.0, 0.0, -1.0};
+    Vec3 cameraUpVector = {0.0, 1.0, 0.0};
+    double cameraFov = 90.0;
+
+    Vec3 sphere1Center = {0.0, 0.0, -5.0};
+    double sphere1Radius = 1.0;
+    Color sphere1Color = {1.0, 0.0, 0.0};
+    Sphere redSphere = sphere_create(sphere1Center, sphere1Radius, sphere1Color);
+
+    Vec3 sphere2Center = {2.0, -0.5, -8.0};
+    double sphere2Radius = 1.5;
+    Color sphere2Color = {0.0, 0.0, 1.0};
+    Sphere blueSphere = sphere_create(sphere2Center, sphere2Radius, sphere2Color);
+
 
     int quitApplication = 0;
     SDL_Event eventHandler;
