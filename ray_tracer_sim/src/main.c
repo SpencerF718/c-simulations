@@ -68,10 +68,17 @@ int main(int argc, char* argv[]) {
     Sphere sceneSpheres[] = {redSphere, blueSphere, greenSphere};
     int numSpheres = sizeof(sceneSpheres) / sizeof(sceneSpheres[0]);
 
+    Vec3 lightPosition = {5.0, 5.0, 0.0};
+    Color lightColor = {1.0, 1.0, 1.0};
+    Color ambientLight = {0.1, 0.1, 0.1};
+
     double aspectRatio = (double)WINDOW_WIDTH / WINDOW_HEIGHT;
     double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
     double halfHeight = tan(halfFovRad);
     double halfWidth =aspectRatio * halfHeight;
+
+    SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(sdlRenderer);
 
     for (int y = 0; y < WINDOW_HEIGHT; y++) {
         for (int x = 0; x < WINDOW_WIDTH; x++) {
@@ -102,7 +109,15 @@ int main(int argc, char* argv[]) {
             }
 
             if (hitSphere != NULL) {
-                pixelColor = hitSphere->color;
+
+                Vec3 intersectionPoint = vec3_add(primaryRay.origin, vec3_scale(primaryRay.direction, closestIntersectionDistance));
+                Vec3 surfaceNormal = vec3_normalize(vec3_sub(intersectionPoint, hitSphere->center));
+                Vec3 lightDirection = vec3_normalize(vec3_sub(lightPosition, intersectionPoint));
+                double diffuseFactor = fmax(0.0, vec3_dot(surfaceNormal, lightDirection));
+
+                pixelColor.x = hitSphere->color.x * lightColor.x * diffuseFactor + ambientLight.x;
+                pixelColor.y = hitSphere->color.y * lightColor.y * diffuseFactor + ambientLight.y;
+                pixelColor.z = hitSphere->color.z * lightColor.z * diffuseFactor + ambientLight.z;
             }
 
             Uint8 r = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.x)) * 255);
