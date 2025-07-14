@@ -86,11 +86,11 @@ int ray_intersect_sphere(Ray ray, Sphere sphere, double* intersectionDistance) {
         double closestDistance = (-b - sqrt(discriminant)) / (2.0 * a);
         double fartherDistance = (-b + sqrt(discriminant)) / (2.0 * a);
 
-        if (closestDistance > 0.001) {
+        if (closestDistance > EPSILON) {
             *intersectionDistance = closestDistance;
             return 1;
         }
-        if (fartherDistance > 0.001) {
+        if (fartherDistance > EPSILON) {
             *intersectionDistance = fartherDistance;
             return 1;
         }

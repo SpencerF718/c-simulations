@@ -3,6 +3,8 @@
 
 #include <SDL.h>
 
+#define EPSILON 0.001
+
 // 3D vector struct
 typedef struct {
     double x;
