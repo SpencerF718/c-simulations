@@ -1,23 +1,20 @@
 #include "ray_logic.h"
+#include <math.h>
 
 Sphere sphere_create(Vec3 center, double radius, Color color) { 
     Sphere s;
-
     s.center = center;
     s.radius = radius;
     s.color = color;
-
     return s;
 }
 
 Camera camera_create(Vec3 position, Vec3 lookAt, Vec3 upVector, double fov) {
     Camera c;
-
     c.position = position;
     c.lookAt = lookAt;
     c.upVector = upVector;
     c.fov = fov;
-
     return c;   
 }
 
@@ -47,6 +44,14 @@ Vec3 vec3_scale(Vec3 v, double s) {
 
 double vec3_dot(Vec3 a, Vec3 b) {
     double result = a.x * b.x + a.y * b.y + a.z * b.z;
+    return result;
+}
+
+Vec3 vec3_cross(Vec3 a, Vec3 b) {
+    Vec3 result;
+    result.x = a.y * b.z - a.z * b.y;
+    result.y = a.z * b.x - a.x * b.z;
+    result.z = a.x * b.y - a.y * b.x;
     return result;
 }
 
