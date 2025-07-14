@@ -61,17 +61,20 @@ int main(int argc, char* argv[]) {
     Vec3 sphere1Center = {0.0, 0.0, -5.0};
     double sphere1Radius = 1.0;
     Color sphere1Color = {1.0, 0.0, 0.0};
-    Sphere redSphere = sphere_create(sphere1Center, sphere1Radius, sphere1Color);
+    double sphere1Reflectivity = 0.8;
+    Sphere redSphere = sphere_create(sphere1Center, sphere1Radius, sphere1Color, sphere1Reflectivity);
 
     Vec3 sphere2Center = {1.0, -0.5, -3.0};
     double sphere2Radius = 0.8;
     Color sphere2Color = {0.0, 0.0, 1.0};
-    Sphere blueSphere = sphere_create(sphere2Center, sphere2Radius, sphere2Color);
+    double sphere2Reflectivity = 0.0;
+    Sphere blueSphere = sphere_create(sphere2Center, sphere2Radius, sphere2Color, sphere2Reflectivity);
 
     Vec3 sphere3Center = {-2.0, 0.5, -7.0};
     double sphere3Radius = 1.2;
     Color sphere3Color = {0.0, 1.0, 0.0};
-    Sphere greenSphere = sphere_create(sphere3Center, sphere3Radius, sphere3Color);
+    double sphere3Reflectivity = 0.5;
+    Sphere greenSphere = sphere_create(sphere3Center, sphere3Radius, sphere3Color, sphere3Reflectivity);
 
     Sphere sceneSpheres[] = {redSphere, blueSphere, greenSphere};
     int numSpheres = sizeof(sceneSpheres) / sizeof(sceneSpheres[0]);
@@ -89,9 +92,6 @@ int main(int argc, char* argv[]) {
     double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
     double halfHeight = tan(halfFovRad);
     double halfWidth =aspectRatio * halfHeight;
-
-    SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(sdlRenderer);
 
     int quitApplication = 0;
     SDL_Event eventHandler;
@@ -127,74 +127,19 @@ int main(int argc, char* argv[]) {
                 rayDirection = vec3_normalize(rayDirection);
                 Ray primaryRay = {sceneCamera.position, rayDirection};
 
-                Color pixelColor = {0.0, 0.0, 0.0};
-                double closestIntersectionDistance = INFINITY;
-                Sphere* hitSphere = NULL;
-
-                for (int i = 0; i < numSpheres; i++) {
-                    double currentIntersectionDistance;
-                    if (ray_intersect_sphere(primaryRay, sceneSpheres[i], &currentIntersectionDistance)) {
-                        if (currentIntersectionDistance < closestIntersectionDistance) {
-                            closestIntersectionDistance = currentIntersectionDistance;
-                            hitSphere = &sceneSpheres[i];
-                        }
-                    }
-                }
-
-                if (hitSphere != NULL) {
-
-                    Vec3 intersectionPoint = vec3_add(primaryRay.origin, vec3_scale(primaryRay.direction, closestIntersectionDistance));
-                    Vec3 surfaceNormal = vec3_normalize(vec3_sub(intersectionPoint, hitSphere->center));
-
-                    int litSamples = 0;
-
-                    for (int i = 0; i < NUM_SHADOW_RAYS; i++) {
-
-                        double u1 = (double)rand() / RAND_MAX * 2.0 - 1.0;
-                        double u2 = (double)rand() / RAND_MAX * 2.0 - 1.0;
-                        double u3 = (double)rand() / RAND_MAX * 2.0 - 1.0;
-
-                        Vec3 randomOffset = {u1, u2, u3};
-                        randomOffset = vec3_normalize(randomOffset);
-                        randomOffset = vec3_scale(randomOffset, lightRadius);
-
-                        Vec3 sampleLightPosition = vec3_add(lightPosition, randomOffset);
-                        Vec3 lightDirectionToSample = vec3_normalize(vec3_sub(sampleLightPosition, intersectionPoint));
-                        Ray shadowRay = {vec3_add(intersectionPoint, vec3_scale(surfaceNormal, EPSILON)), lightDirectionToSample};
-                        double lightDistanceToSample = vec3_length(vec3_sub(sampleLightPosition, intersectionPoint));
-
-                        int inShadow = 0;
-                        for (int k = 0; k < numSpheres; k++) {
-                            if (&sceneSpheres[k] != hitSphere) {
-                                double shadowIntersectionDistance;
-                                if (ray_intersect_sphere(shadowRay, sceneSpheres[k], &shadowIntersectionDistance)) {
-                                    if (shadowIntersectionDistance < lightDistanceToSample) {
-                                        inShadow = 1;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (!inShadow) {
-                            litSamples++;
-                        }
-                    }
-
-                    double shadowFactor = (double)litSamples / NUM_SHADOW_RAYS;
-
-                    Vec3 lightDirection = vec3_normalize(vec3_sub(lightPosition, intersectionPoint));
-                    double diffuseFactor = fmax(0.0, vec3_dot(surfaceNormal, lightDirection));
-
-                    Vec3 viewDirection = vec3_normalize(vec3_sub(sceneCamera.position, intersectionPoint));
-                    Vec3 reflectionDirection = vec3_sub(vec3_scale(surfaceNormal, 2.0 * vec3_dot(surfaceNormal, lightDirection)), lightDirection);
-                    reflectionDirection = vec3_normalize(reflectionDirection);
-                    double specFactor = fmax(0.0, vec3_dot(reflectionDirection, viewDirection));
-                    specFactor = pow(specFactor, shininess);
-
-                    pixelColor.x = ambientLight.x + hitSphere->color.x * lightColor.x * diffuseFactor * shadowFactor + specularLightColor.x * specFactor * shadowFactor;
-                    pixelColor.y = ambientLight.y + hitSphere->color.y * lightColor.y * diffuseFactor * shadowFactor + specularLightColor.y * specFactor * shadowFactor;
-                    pixelColor.z = ambientLight.z + hitSphere->color.z * lightColor.z * diffuseFactor * shadowFactor + specularLightColor.z * specFactor * shadowFactor;
-                }
+                Color pixelColor = trace_ray(
+                    primaryRay,
+                    sceneSpheres,
+                    numSpheres,
+                    lightPosition,
+                    lightColor,
+                    ambientLight,
+                    specularLightColor,
+                    shininess,
+                    lightRadius,
+                    NUM_SHADOW_RAYS,
+                    0
+                );
 
                 Uint8 r = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.x)) * 255);
                 Uint8 g = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.y)) * 255);
