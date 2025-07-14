@@ -95,6 +95,10 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&eventHandler) != 0) {
             if (eventHandler.type == SDL_QUIT) {
                 quitApplication = 1;
+            } else if (eventHandler.type == SDL_MOUSEMOTION) {
+                lightPosition.x = ((double)eventHandler.motion.x / WINDOW_WIDTH) * 10.0 - 5.0;
+                lightPosition.y = ((double)eventHandler.motion.y / WINDOW_HEIGHT) * 10.0 - 5.0;
+                lightPosition.z = 0.0;
             }
         }
         SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xFF);
