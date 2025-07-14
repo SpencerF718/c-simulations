@@ -5,8 +5,9 @@
 
 #define EPSILON 0.001
 #define DEFAULT_FOV 90
-#define ONE_SECOND 1000
+#define ONE_SECOND 1000.0f
 #define SHININESS_CONST 64.0
+#define NUM_SHADOW_RAYS 32
 
 // 3D vector struct
 typedef struct {

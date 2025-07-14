@@ -1,6 +1,8 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 #include "ray_logic.h"
 
 #ifdef _MSC_VER
@@ -14,6 +16,8 @@ int main(int argc, char* argv[]) {
 
     (void)argc;
     (void)argv;
+
+    srand((unsigned int)time(NULL));
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         return 1;
@@ -79,6 +83,7 @@ int main(int argc, char* argv[]) {
     Color specularLightColor = {1.0, 1.0, 1.0};
     double shininess = SHININESS_CONST;
 
+    double lightRadius = 0.5;
 
     double aspectRatio = (double)WINDOW_WIDTH / WINDOW_HEIGHT;
     double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
@@ -140,19 +145,55 @@ int main(int argc, char* argv[]) {
 
                     Vec3 intersectionPoint = vec3_add(primaryRay.origin, vec3_scale(primaryRay.direction, closestIntersectionDistance));
                     Vec3 surfaceNormal = vec3_normalize(vec3_sub(intersectionPoint, hitSphere->center));
+
+                    int litSamples = 0;
+
+                    for (int i = 0; i < NUM_SHADOW_RAYS; i++) {
+
+                        double u1 = (double)rand() / RAND_MAX * 2.0 - 1.0;
+                        double u2 = (double)rand() / RAND_MAX * 2.0 - 1.0;
+                        double u3 = (double)rand() / RAND_MAX * 2.0 - 1.0;
+
+                        Vec3 randomOffset = {u1, u2, u3};
+                        randomOffset = vec3_normalize(randomOffset);
+                        randomOffset = vec3_scale(randomOffset, lightRadius);
+
+                        Vec3 sampleLightPosition = vec3_add(lightPosition, randomOffset);
+                        Vec3 lightDirectionToSample = vec3_normalize(vec3_sub(sampleLightPosition, intersectionPoint));
+                        Ray shadowRay = {vec3_add(intersectionPoint, vec3_scale(surfaceNormal, EPSILON)), lightDirectionToSample};
+                        double lightDistanceToSample = vec3_length(vec3_sub(sampleLightPosition, intersectionPoint));
+
+                        int inShadow = 0;
+                        for (int k = 0; k < numSpheres; k++) {
+                            if (&sceneSpheres[k] != hitSphere) {
+                                double shadowIntersectionDistance;
+                                if (ray_intersect_sphere(shadowRay, sceneSpheres[k], &shadowIntersectionDistance)) {
+                                    if (shadowIntersectionDistance < lightDistanceToSample) {
+                                        inShadow = 1;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (!inShadow) {
+                            litSamples++;
+                        }
+                    }
+
+                    double shadowFactor = (double)litSamples / NUM_SHADOW_RAYS;
+
                     Vec3 lightDirection = vec3_normalize(vec3_sub(lightPosition, intersectionPoint));
                     double diffuseFactor = fmax(0.0, vec3_dot(surfaceNormal, lightDirection));
 
                     Vec3 viewDirection = vec3_normalize(vec3_sub(sceneCamera.position, intersectionPoint));
                     Vec3 reflectionDirection = vec3_sub(vec3_scale(surfaceNormal, 2.0 * vec3_dot(surfaceNormal, lightDirection)), lightDirection);
                     reflectionDirection = vec3_normalize(reflectionDirection);
-
                     double specFactor = fmax(0.0, vec3_dot(reflectionDirection, viewDirection));
                     specFactor = pow(specFactor, shininess);
 
-                    pixelColor.x = hitSphere->color.x * lightColor.x * diffuseFactor + ambientLight.x + specularLightColor.x * specFactor;
-                    pixelColor.y = hitSphere->color.y * lightColor.y * diffuseFactor + ambientLight.y + specularLightColor.y * specFactor;
-                    pixelColor.z = hitSphere->color.z * lightColor.z * diffuseFactor + ambientLight.z + specularLightColor.z * specFactor;
+                    pixelColor.x = ambientLight.x + hitSphere->color.x * lightColor.x * diffuseFactor * shadowFactor + specularLightColor.x * specFactor * shadowFactor;
+                    pixelColor.y = ambientLight.y + hitSphere->color.y * lightColor.y * diffuseFactor * shadowFactor + specularLightColor.y * specFactor * shadowFactor;
+                    pixelColor.z = ambientLight.z + hitSphere->color.z * lightColor.z * diffuseFactor * shadowFactor + specularLightColor.z * specFactor * shadowFactor;
                 }
 
                 Uint8 r = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.x)) * 255);
