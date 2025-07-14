@@ -3,6 +3,10 @@
 #include <math.h>
 #include "ray_logic.h"
 
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
+
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 800;
 
@@ -83,8 +87,11 @@ int main(int argc, char* argv[]) {
     int quitApplication = 0;
     SDL_Event eventHandler;
 
-    while (!quitApplication) {
+    Uint32 frameCount = 0;
+    Uint32 lastFpsTime = SDL_GetTicks();
+    char windowTitleBuffer[256];
 
+    while (!quitApplication) {
         while (SDL_PollEvent(&eventHandler) != 0) {
             if (eventHandler.type == SDL_QUIT) {
                 quitApplication = 1;
@@ -142,6 +149,17 @@ int main(int argc, char* argv[]) {
             }
         }
         SDL_RenderPresent(sdlRenderer);
+
+        frameCount++;
+        Uint32 currentTime = SDL_GetTicks();
+
+        if (currentTime - lastFpsTime >= ONE_SECOND) {
+            double fps = frameCount / ((currentTime - lastFpsTime) / ONE_SECOND);
+            snprintf(windowTitleBuffer, sizeof(windowTitleBuffer), "Ray Tracer Simulation - FPS: %.2f", fps);
+            SDL_SetWindowTitle(sdlWindow, windowTitleBuffer);
+            frameCount = 0;
+            lastFpsTime = currentTime;
+        }
     }
 
     SDL_DestroyRenderer(sdlRenderer);
