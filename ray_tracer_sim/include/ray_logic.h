@@ -44,7 +44,7 @@ double vec3_length(Vec3 v);
 Vec3 vec3_normalize(Vec3 v);
 
 // ray intercetion (integer representation of a boolean)
-int ray_intersect_sphere(Ray ray, Sphere sphere, double* t);
+int ray_intersect_sphere(Ray ray, Sphere sphere, double* intersectionDistance);
 
 // function to create a new sphere
 Sphere sphere_create(Vec3 center, double radius, Color color);

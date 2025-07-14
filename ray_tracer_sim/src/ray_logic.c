@@ -71,7 +71,7 @@ Vec3 vec3_normalize(Vec3 v) {
     return result;
 }
 
-int ray_intersect_sphere(Ray ray, Sphere sphere, double* t) {
+int ray_intersect_sphere(Ray ray, Sphere sphere, double* intersectionDistance) {
     Vec3 oc = vec3_sub(ray.origin, sphere.center);
 
     double a = vec3_dot(ray.direction, ray.direction);
@@ -83,15 +83,15 @@ int ray_intersect_sphere(Ray ray, Sphere sphere, double* t) {
     if (discriminant < 0) {
         return 0; 
     } else {
-        double t0 = (-b - sqrt(discriminant)) / (2.0 * a);
-        double t1 = (-b + sqrt(discriminant)) / (2.0 * a);
+        double closestDistance = (-b - sqrt(discriminant)) / (2.0 * a);
+        double fartherDistance = (-b + sqrt(discriminant)) / (2.0 * a);
 
-        if (t0 > 0.001) {
-            *t = t0;
+        if (closestDistance > 0.001) {
+            *intersectionDistance = closestDistance;
             return 1;
         }
-        if (t1 > 0.001) {
-            *t = t1;
+        if (fartherDistance > 0.001) {
+            *intersectionDistance = fartherDistance;
             return 1;
         }
         return 0;
