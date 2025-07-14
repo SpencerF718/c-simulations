@@ -55,10 +55,18 @@ int main(int argc, char* argv[]) {
     Color sphere1Color = {1.0, 0.0, 0.0};
     Sphere redSphere = sphere_create(sphere1Center, sphere1Radius, sphere1Color);
 
-    Vec3 sphere2Center = {2.0, -0.5, -8.0};
-    double sphere2Radius = 1.5;
+    Vec3 sphere2Center = {1.0, -0.5, -3.0};
+    double sphere2Radius = 0.8;
     Color sphere2Color = {0.0, 0.0, 1.0};
     Sphere blueSphere = sphere_create(sphere2Center, sphere2Radius, sphere2Color);
+
+    Vec3 sphere3Center = {-2.0, 0.5, -7.0};
+    double sphere3Radius = 1.2;
+    Color sphere3Color = {0.0, 1.0, 0.0};
+    Sphere greenSphere = sphere_create(sphere3Center, sphere3Radius, sphere3Color);
+
+    Sphere sceneSpheres[] = {redSphere, blueSphere, greenSphere};
+    int numSpheres = sizeof(sceneSpheres) / sizeof(sceneSpheres[0]);
 
     double aspectRatio = (double)WINDOW_WIDTH / WINDOW_HEIGHT;
     double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
@@ -66,7 +74,7 @@ int main(int argc, char* argv[]) {
     double halfWidth =aspectRatio * halfHeight;
 
     for (int y = 0; y < WINDOW_HEIGHT; y++) {
-        for (int x = 0; x > WINDOW_WIDTH; x++) {
+        for (int x = 0; x < WINDOW_WIDTH; x++) {
 
             double uNorm = (double)x / (WINDOW_WIDTH - 1.0) * 2.0 - 1.0;
             double vNorm = (double)y / (WINDOW_HEIGHT - 1.0) * 2.0 - 1.0;
@@ -79,6 +87,30 @@ int main(int argc, char* argv[]) {
             rayDirection = vec3_normalize(rayDirection);
             Ray primaryRay = {sceneCamera.position, rayDirection};
 
+            Color pixelColor = {0.0, 0.0, 0.0};
+            double closestIntersectionDistance = INFINITY;
+            Sphere* hitSphere = NULL;
+
+            for (int i = 0; i < numSpheres; i++) {
+                double currentIntersectionDistance;
+                if (ray_intersect_sphere(primaryRay, sceneSpheres[i], &currentIntersectionDistance)) {
+                    if (currentIntersectionDistance < closestIntersectionDistance) {
+                        closestIntersectionDistance = currentIntersectionDistance;
+                        hitSphere = &sceneSpheres[i];
+                    }
+                }
+            }
+
+            if (hitSphere != NULL) {
+                pixelColor = hitSphere->color;
+            }
+
+            Uint8 r = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.x)) * 255);
+            Uint8 g = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.y)) * 255);
+            Uint8 b = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.z)) * 255);
+
+            SDL_SetRenderDrawColor(sdlRenderer, r, g, b, 0XFF);
+            SDL_RenderDrawPoint(sdlRenderer, x, y);
         }
     }
 
@@ -92,9 +124,6 @@ int main(int argc, char* argv[]) {
                 quitApplication = 1;
             }
         }
-
-        SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderClear(sdlRenderer);
         SDL_RenderPresent(sdlRenderer);
     }
 
