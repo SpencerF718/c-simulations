@@ -11,6 +11,20 @@ A collection of various simulations, all built in C.
 - Interaction with mouse input
 - Rendering with SDL2
 
+### Ray Tracing Simulation
+
+![Demo of Ray Tracer Simulation](assets/image/ray_traced_spheres.png)
+
+- Ray traced 3D scene
+- Sphere scene objects
+- Ambient, diffuse, and specular lighting
+- Soft shadows
+- Reflections
+- Mouse interaction to control light source[^1]
+- Rendering with SDL2
+
+[^1]: Note: This is a single-threaded application and has limited GPU acceleration.  As a result, blazingly fast real time rendering is not expected.
+
 ## Setup Instructions
 
 1. Install MSYS2 from [https://www.msys2.org/](https://www.msys2.org/):
