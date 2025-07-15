@@ -15,7 +15,7 @@ A collection of various simulations, all built in C.
 
 1. Install MSYS2 from [https://www.msys2.org/](https://www.msys2.org/):
 
-2. In MSYS2 MinGW 64-bit terminal, run the following commands to install the necessary tools:
+2. In MSYS2 MinGW 64-bit terminal, run the following commands to install Make, pkg-config, and SDL2.
 ```bash
 pacman -Syu
 ```
@@ -42,7 +42,8 @@ cd /c/c-simulations
 2. Run the makefile:
 
 ```bash
-make
+make PROJECT=eulerian_fluid_sim
+# The command will follow the pattern: make PROJECT={simulation folder name}
 ```
 
 3. Navigate to the 'build' directory:
@@ -54,7 +55,8 @@ cd build
 4. Run the simulation:
 
 ```bash
-./sdl_gui_app.exe
+./eulurian_fluid_sim_app.exe
+# The command will follow the pattern: ./{simulation folder name}_app.exe
 ```
 
 5. Clean the project:
