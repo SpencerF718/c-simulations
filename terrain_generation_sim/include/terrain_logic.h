@@ -3,3 +3,5 @@
 
 #include <SDL.h>
 
+// Hard coded permutation table
+extern const int permutationTable[];
