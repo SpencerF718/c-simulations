@@ -2,9 +2,14 @@
 #define TERRAIN_LOGIC_H
 
 #include <SDL.h>
+#include <math.h>
+#include <stdint.h>
 
 // Hard coded permutation table
-extern const int permutationTable[];
+extern const uint8_t permutationTable[];
+
+// 2D array which holds gradient vectors
+extern const double gradientVectors[16][2];
 
 /*
    Implementation of "smootherstep" function
@@ -13,3 +18,7 @@ extern const int permutationTable[];
         =   t * t * t * (t * (t * 6 - 15) + 10)
 */
 double perlin_fade(double interpolationFactor);
+
+// Dot product helper function
+double gradient_dot_product(uint8_t permutationHash, double distanceX, double distanceY);
+

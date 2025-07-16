@@ -1,6 +1,6 @@
 #include "terrain_logic.h"
 
-const int gPerlinPermutationTable[] = {
+const uint8_t gPerlinPermutationTable[] = {
     151,160,137, 91, 90, 15,131, 13,201, 95, 96,155, 68, 11, 27,194,
     140, 83,165,164,127, 73,130, 26, 47,247,208,241,101,114,124, 71,
     88, 28,212, 19,178, 59,209, 21, 58, 40, 24,162,136, 14, 82,107,
@@ -19,7 +19,20 @@ const int gPerlinPermutationTable[] = {
     151,160,137, 91, 90, 15,131, 13,201, 95, 96,155, 68, 11, 27,194,
 };
 
+const double gradientVectors[16][2] =  {
+    {1, 1}, {-1, 1}, {1, -1}, {-1, -1},
+    {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+    {1, 1}, {-1, 1}, {1, -1}, {-1, -1},
+    {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+};
+
 double perlin_fade(double interpolationFactor) {
     double t = interpolationFactor; 
     return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+double gradient_dot_product(uint8_t permutationHash, double distanceX, double distanceY) {
+    // Bitwise optimization. Same as % 16
+    int index = permutationHash & 0xF;
+    return gradientVectors[index][0] * distanceX + gradientVectors[index][1] * distanceY;
 }
