@@ -19,6 +19,6 @@ extern const double gradientVectors[16][2];
 */
 double perlin_fade(double interpolationFactor);
 
-// Dot product helper function
+// Calculates dot product of a selected gradient vector and distance vector.
 double gradient_dot_product(uint8_t permutationHash, double distanceX, double distanceY);
 
