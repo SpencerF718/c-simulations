@@ -36,3 +36,31 @@ double gradient_dot_product(uint8_t permutationHash, double distanceX, double di
     int index = permutationHash & 0xF;
     return gradientVectors[index][0] * distanceX + gradientVectors[index][1] * distanceY;
 }
+
+double perlin_noise_2d(double xCoordinate, double yCoordinate) {
+    int floorX = (int)floor(xCoordinate);
+    int floorY = (int)floor(yCoordinate);
+
+    double fractionalX = xCoordinate - floorX; 
+    double fractionalY = yCoordinate - floorY;
+
+    double fadedX = perlin_fade(fractionalX);
+    double fadedY = perlin_fade(fractionalY);
+
+    uint8_t hashAA = permutationTable[permutationTable[floorX & 255] + (floorY & 255)] & 255;
+    uint8_t hashBA = permutationTable[permutationTable[(floorX + 1) & 255] + (floorY & 255)] & 255;
+    uint8_t hashAB = permutationTable[permutationTable[floorX & 255] + ((floorY + 1) & 255)] & 255;
+    uint8_t hashBB = permutationTable[permutationTable[(floorX + 1) & 255] + ((floorY + 1) & 255)] & 255;
+
+    double dotProductAA = gradient_dot_product(hashAA, fractionalX, fractionalY);
+    double dotProductBA = gradient_dot_product(hashBA, fractionalX - 1, fractionalY);
+    double dotProductAB = gradient_dot_product(hashAB, fractionalX, fractionalY - 1);
+    double dotProductBB = gradient_dot_product(hashBB, fractionalX - 1, fractionalY - 1);
+
+    double interpolatedXBottom = dotProductAA + fadedX * (dotProductBA - dotProductAA);
+    double interpolatedXTop = dotProductAB + fadedX * (dotProductBB - dotProductAB);
+    
+    double finalNoiseValue = interpolatedXBottom + fadedY * (interpolatedXTop - interpolatedXBottom);
+
+    return finalNoiseValue;
+}
