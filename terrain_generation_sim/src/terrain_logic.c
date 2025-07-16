@@ -18,3 +18,8 @@ const int gPerlinPermutationTable[] = {
     215, 65, 33,129, 66,220, 95, 96,155, 68, 11, 27,194,140, 83,165,
     151,160,137, 91, 90, 15,131, 13,201, 95, 96,155, 68, 11, 27,194,
 };
+
+double perlin_fade(double interpolationFactor) {
+    double t = interpolationFactor; 
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
