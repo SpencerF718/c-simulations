@@ -1,6 +1,6 @@
 #include "terrain_logic.h"
 
-const uint8_t gPerlinPermutationTable[] = {
+const uint8_t permutationTable[512] = {
     151,160,137, 91, 90, 15,131, 13,201, 95, 96,155, 68, 11, 27,194,
     140, 83,165,164,127, 73,130, 26, 47,247,208,241,101,114,124, 71,
     88, 28,212, 19,178, 59,209, 21, 58, 40, 24,162,136, 14, 82,107,
@@ -59,7 +59,7 @@ double perlin_noise_2d(double xCoordinate, double yCoordinate) {
 
     double interpolatedXBottom = dotProductAA + fadedX * (dotProductBA - dotProductAA);
     double interpolatedXTop = dotProductAB + fadedX * (dotProductBB - dotProductAB);
-    
+
     double finalNoiseValue = interpolatedXBottom + fadedY * (interpolatedXTop - interpolatedXBottom);
 
     return finalNoiseValue;
