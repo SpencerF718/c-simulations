@@ -65,17 +65,9 @@ int main(int argc, char* argv[]) {
 
                 double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
 
-                int color = (int)((noiseValue + 1.0) * 0.5 * 255.0);
+                Color pixelColor = get_terrain_color(noiseValue);
 
-                if (color < 0) {
-                    color = 0;
-                } 
-                
-                if (color > 255) {
-                    color = 255;
-                }
-
-                SDL_SetRenderDrawColor(renderer, color, color, color, 0xFF);
+                SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
                 SDL_RenderDrawPoint(renderer, x, y);
             }
         }

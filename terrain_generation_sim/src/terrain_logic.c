@@ -65,3 +65,42 @@ double perlin_noise_2d(double xCoordinate, double yCoordinate) {
 
     return finalNoiseValue;
 }
+
+Color get_terrain_color(double noiseValue) {
+    Color color;
+    double normalizedNoise = (noiseValue + 1.0) * 0.5;
+
+    if (normalizedNoise < WATER_LEVEL_THRESHOLD) {
+
+        color.r = COLOR_WATER_R;
+        color.g = COLOR_WATER_G;
+        color.b = (uint8_t)(COLOR_WATER_B_MIN + normalizedNoise * COLOR_WATER_B_RANGE);
+
+    } else if (normalizedNoise < SAND_LEVEL_THRESHOLD) {
+
+        color.r = (uint8_t)(COLOR_SAND_R_FACTOR * normalizedNoise);
+        color.g = (uint8_t)(COLOR_SAND_G_FACTOR * normalizedNoise);
+        color.b = (uint8_t)(COLOR_SAND_B_FACTOR * normalizedNoise);
+
+    } else if (normalizedNoise < GRASS_LEVEL_THRESHOLD) {
+
+        color.r = (uint8_t)(COLOR_GRASS_R_FACTOR * normalizedNoise);
+        color.g = (uint8_t)(COLOR_GRASS_G_FACTOR * normalizedNoise);
+        color.b = (uint8_t)(COLOR_GRASS_B_FACTOR * normalizedNoise);
+
+    } else if (normalizedNoise < ROCK_LEVEL_THRESHOLD) {
+
+        color.r = (uint8_t)(COLOR_ROCK_R_FACTOR * normalizedNoise);
+        color.g = (uint8_t)(COLOR_ROCK_G_FACTOR * normalizedNoise);
+        color.b = (uint8_t)(COLOR_ROCK_B_FACTOR * normalizedNoise);
+
+    } else {
+
+        color.r = (uint8_t)(COLOR_SNOW_R_FACTOR * normalizedNoise);
+        color.g = (uint8_t)(COLOR_SNOW_G_FACTOR * normalizedNoise);
+        color.b = (uint8_t)(COLOR_SNOW_B_FACTOR * normalizedNoise);
+        
+    }
+
+    return color;
+}
