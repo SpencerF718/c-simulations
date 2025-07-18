@@ -6,7 +6,7 @@
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
-const double FEATURE_SCALE = 2.5;
+const double FEATURE_SCALE = 10.0;
 
 int main(int argc, char* argv[]) {
 
