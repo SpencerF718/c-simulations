@@ -5,7 +5,7 @@ A collection of various simulations, all built in C.
 
 ### Eulerian Fluid Simulation
 
-![Demo of Eulerian Fluid Simulation](assets/gifs/eulerian_smoke.gif)
+![Demo of Eulerian Fluid Simulation](assets/gif/eulerian_smoke.gif)
 
 - 2D Eulerian fluid simulation
 - Interaction with mouse input
@@ -13,7 +13,7 @@ A collection of various simulations, all built in C.
 
 ### Ray Tracing Simulation
 
-![Demo of Ray Tracer Simulation](assets/images/ray_traced_spheres.png)
+![Demo of Ray Tracer Simulation](assets/image/ray_traced_spheres.png)
 
 - Ray traced 3D scene
 - Sphere scene objects
