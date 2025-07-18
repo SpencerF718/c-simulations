@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 
+
 Fluid* fluid_init(float density, int numX, int numY, float cellSize) {
 
     Fluid* fluid = (Fluid*)calloc(1, sizeof(Fluid));

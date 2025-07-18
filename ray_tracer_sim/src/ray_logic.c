@@ -1,6 +1,7 @@
 #include "ray_logic.h"
 #include <math.h>
 
+
 Sphere sphere_create(Vec3 center, double radius, Color color, double reflectivity) { 
     Sphere s;
     s.center = center;
