@@ -6,6 +6,9 @@
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
+const int TERRAIN_WIDTH = 256;
+const int TERRAIN_HEIGHT = 256;
+const double FEATURE_SCALE = 10.0;
 
 int main(int argc, char* argv[]) {
 
@@ -53,6 +56,30 @@ int main(int argc, char* argv[]) {
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
         SDL_RenderClear(renderer);
+
+        for (int y = 0; y < WINDOW_HEIGHT; ++y) {
+            for (int x = 0; x < WINDOW_WIDTH; ++x) {
+
+                double normalizedX = (double)x / WINDOW_WIDTH * FEATURE_SCALE;
+                double normalizedY = (double)y / WINDOW_HEIGHT * FEATURE_SCALE;
+
+                double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
+
+                int color = (int)((noiseValue + 1.0) * 0.5 * 255.0);
+
+                if (color < 0) {
+                    color = 0;
+                } 
+                
+                if (color > 255) {
+                    color = 255;
+                }
+
+                SDL_SetRenderDrawColor(renderer, color, color, color, 0xFF);
+                SDL_RenderDrawPoint(renderer, x, y);
+            }
+        }
+
         SDL_RenderPresent(renderer);
     }
 
