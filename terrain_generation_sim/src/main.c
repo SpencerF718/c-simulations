@@ -7,6 +7,12 @@
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
 
+void render_terrain(SDL_Renderer* renderer, int windowWidth, int windowHeight) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+}
+
 int main(int argc, char* argv[]) {
 
     (void)argc;
@@ -50,10 +56,7 @@ int main(int argc, char* argv[]) {
                 quit = 1;
             }
         }
-
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
+        render_terrain(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
 
     SDL_DestroyRenderer(renderer);
