@@ -26,7 +26,7 @@ build/
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-## *.dll # removed for SDL2.dll in /lib
+## *.dll # removed for SDL2.dll in the lib folder
 *.so
 *.so.*
 *.dylib
