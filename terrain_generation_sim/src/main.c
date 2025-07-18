@@ -6,9 +6,7 @@
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
-const int TERRAIN_WIDTH = 256;
-const int TERRAIN_HEIGHT = 256;
-const double FEATURE_SCALE = 10.0;
+const double FEATURE_SCALE = 2.5;
 
 int main(int argc, char* argv[]) {
 
