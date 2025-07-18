@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdint.h>
 
+
 // Hard coded permutation table
 extern const uint8_t permutationTable[];
 
@@ -24,8 +25,5 @@ double gradient_dot_product(uint8_t permutationHash, double distanceX, double di
 
 // Generates a 2D Perlin noise value for x and y
 double perlin_noise_2d(double xCoordinate, double yCoordinate);
-
-// Renders the terrain based on Perlin noise values.
-void render_terrain(SDL_Renderer* renderer,int windowWidth, int windowHeight);
 
 #endif
