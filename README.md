@@ -25,6 +25,8 @@ A collection of various simulations, all built in C.
 
 [^1]: Note: This is a single-threaded application and has limited GPU acceleration.  As a result, blazingly fast real time rendering is not expected.
 
+### Terrain Generation Simulation
+
 ## Setup Instructions
 
 1. Install MSYS2 from [https://www.msys2.org/](https://www.msys2.org/):
