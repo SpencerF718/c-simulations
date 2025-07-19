@@ -27,7 +27,6 @@ SRCS = $(wildcard $(SRC_DIR)/*.c)
 # Automatically generate the list of object files from source files
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
-
 CC = gcc
 
 # Standard CFLAGS:

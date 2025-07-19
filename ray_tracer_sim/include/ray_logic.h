@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <SDL.h>
 
+
 #define EPSILON 0.001
 #define DEFAULT_FOV 90
 #define ONE_SECOND 1000.0f

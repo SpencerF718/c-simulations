@@ -5,7 +5,7 @@ A collection of various simulations, all built in C.
 
 ### Eulerian Fluid Simulation
 
-![Demo of Eulerian Fluid Simulation](assets/gif/eulerian_smoke.gif)
+![Demo of Eulerian Fluid Simulation](assets/gifs/eulerian_smoke.gif)
 
 - 2D Eulerian fluid simulation
 - Interaction with mouse input
@@ -13,7 +13,7 @@ A collection of various simulations, all built in C.
 
 ### Ray Tracing Simulation
 
-![Demo of Ray Tracer Simulation](assets/image/ray_traced_spheres.png)
+![Demo of Ray Tracer Simulation](assets/images/ray_traced_spheres.png)
 
 - Ray traced 3D scene
 - Sphere scene objects
@@ -24,6 +24,14 @@ A collection of various simulations, all built in C.
 - Rendering with SDL2
 
 [^1]: Note: This is a single-threaded application and has limited GPU acceleration.  As a result, blazingly fast real time rendering is not expected.
+
+### Terrain Generation Simulation
+
+![Demo of 2D Terrain Generator](assets/images/2D_terrain_generation.png)
+
+- Perlin noise-based 2D terrain generation
+- Height-based coloring
+- Rendering with SDL2
 
 ## Setup Instructions
 
