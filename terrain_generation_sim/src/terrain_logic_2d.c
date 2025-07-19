@@ -1,4 +1,4 @@
-#include "terrain_logic.h"
+#include "terrain_logic_2d.h"
 
 
 const uint8_t permutationTable[512] = {
@@ -99,7 +99,7 @@ Color get_terrain_color(double noiseValue) {
         color.r = (uint8_t)(COLOR_SNOW_R_FACTOR * normalizedNoise);
         color.g = (uint8_t)(COLOR_SNOW_G_FACTOR * normalizedNoise);
         color.b = (uint8_t)(COLOR_SNOW_B_FACTOR * normalizedNoise);
-        
+
     }
 
     return color;

@@ -1,5 +1,5 @@
-#ifndef TERRAIN_LOGIC_H
-#define TERRAIN_LOGIC_H
+#ifndef TERRAIN_LOGIC_2D_H
+#define TERRAIN_LOGIC_2D_H
 
 #include <SDL.h>
 #include <math.h>

@@ -1,7 +1,7 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#include "terrain_logic.h"
+#include "terrain_logic_2d.h"
 
 
 const int WINDOW_HEIGHT = 800;
