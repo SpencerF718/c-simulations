@@ -27,11 +27,15 @@ A collection of various simulations, all built in C.
 
 ### Terrain Generation Simulation
 
+#### 2D Terrain Generation
+
 ![Demo of 2D Terrain Generator](assets/images/2D_terrain_generation.png)
 
 - Perlin noise-based 2D terrain generation
 - Height-based coloring
 - Rendering with SDL2
+
+#### 3D Terrain Generation
 
 ## Setup Instructions
 
