@@ -4,6 +4,13 @@
 #include <stdint.h>
 #include <math.h>
 
+typedef struct {
+    int width;
+    int height;
+    int depth;
+    float* data;
+} Terrain3D;
+
 /*
    Implementation of "smootherstep" function
             6t^5 - 15t^4 + 10t^3
