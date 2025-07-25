@@ -4,12 +4,20 @@
 #include <stdint.h>
 #include <math.h>
 
+
+// Structure to hold the dimensions of 3D terrain with an array that holds the data
 typedef struct {
     int width;
     int height;
     int depth;
     float* data;
 } Terrain3D;
+
+// Initialize a new Terrain3D struct
+Terrain3D* terrain3d_init(int width, int heigh, int depth);
+
+// Frees the allocated memory for the Terrain3D struct
+void terrain3d_free(Terrain3D* terrain);
 
 /*
    Implementation of "smootherstep" function
