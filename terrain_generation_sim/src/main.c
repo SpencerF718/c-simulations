@@ -10,6 +10,7 @@ const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
 const double FEATURE_SCALE_2D = 10.0;
 const double FEATURE_SCALE_3D = 10.0;
+const double Z_COORDINATE_OFFSET = 0.0;
 
 typedef enum {
     MODE_2D,
@@ -76,18 +77,33 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
         SDL_RenderClear(renderer);
 
-        for (int y = 0; y < WINDOW_HEIGHT; ++y) {
-            for (int x = 0; x < WINDOW_WIDTH; ++x) {
+        if (currentSimulationMode == MODE_2D) {
+            for (int y = 0; y < WINDOW_HEIGHT; ++y) {
+                for (int x = 0; x < WINDOW_WIDTH; ++x) {
 
-                double normalizedX = (double)x / WINDOW_WIDTH * FEATURE_SCALE_2D;
-                double normalizedY = (double)y / WINDOW_HEIGHT * FEATURE_SCALE_2D;
+                    double normalizedX = (double)x / WINDOW_WIDTH * FEATURE_SCALE_2D;
+                    double normalizedY = (double)y / WINDOW_HEIGHT * FEATURE_SCALE_2D;
 
-                double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
+                    double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
 
-                Color pixelColor = get_terrain_color(noiseValue);
+                    Color pixelColor = get_terrain_color(noiseValue);
 
-                SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
-                SDL_RenderDrawPoint(renderer, x, y);
+                    SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
+                    SDL_RenderDrawPoint(renderer, x, y);
+                }
+            }
+        } else if (currentSimulationMode == MODE_3D) {
+            for (int y = 0; y < WINDOW_HEIGHT; y++) {
+                for (int x = 0; x < WINDOW_WIDTH; x++) {
+                    double normalizedX = (double)x / WINDOW_WIDTH * FEATURE_SCALE_3D;
+                    double normalizedY = (double)y / WINDOW_HEIGHT * FEATURE_SCALE_3D;
+
+                    double noiseValue = perlin_noise_3d(normalizedX, normalizedY, Z_COORDINATE_OFFSET);
+
+                    Color pixelColor = get_terrain_color(noiseValue);
+                    SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
+                    SDL_RenderDrawPoint(renderer, x, y);
+                }
             }
         }
 
