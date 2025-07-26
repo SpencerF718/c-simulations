@@ -78,3 +78,54 @@ double gradient_dot_product_3d(uint8_t permutationHash, double distanceX, double
            gradientVectors3D[index][2] * distanceZ;
 }
 
+double perlin_noise_3d(double x, double y, double z) {
+    int floorX = (int)floor(x);
+    int floorY = (int)floor(y);
+    int floorZ = (int)floor(z);
+
+    double fractionalX = x - floorX;
+    double fractionalY = y - floorY;
+    double fractionalZ = z - floorz;
+
+    double fadedX = perlin_fade(fractionalX);
+    double fadedY = perlin_fade(fractionalY);
+    double fadedZ = perlin_fade(fractionalZ);
+
+    uint8_t A = permutationTable[floorX & 255] + (floorY & 255);
+    uint8_t AA = permutationTable[A & 255] + (floorZ & 255);
+    uint8_t AB = permutationTable[(A + 1) & 255] + (floorZ & 255);
+
+    uint8_t B = permutationTable[(floorX + 1) & 255] + (floorY & 255);
+    uint8_t BA = permutationTable[B & 255] + (floorZ & 255);
+    uint8_t BB = permutationTable[(B + 1) & 255] + (floorZ & 255);
+
+    double dotProductAAA = gradient_dot_product_3d(permutationTable[AA], fractionalX, fractionalY, fractionalZ);
+    double dotProductBAA = gradient_dot_product_3d(permutationTable[BA], fractionalX - 1, fractionalY, fractionalZ);
+    double dotProductABA = gradient_dot_product_3d(permutationTable[AB], fractionalX, fractionalY - 1, fractionalZ);
+    double dotProductBBA = gradient_dot_product_3d(permutationTable[BB], fractionalX - 1, fractionalY - 1, fractionalZ);
+
+    uint8_t hashAPlus1 = permutationTable[floorX & 255] + ((floorY + 1) & 255);
+    uint8_t hashAAPlus1 = permutationTable[hashAPlus1 & 255] + ((floorZ + 1) & 255);
+    uint8_t hashABPlus1 = permutationTable[(hashAPlus1 + 1) & 255] + ((floorZ + 1) & 255);
+
+    uint8_t hashBPlus1 = permutationTable[(floorX + 1) & 255] + ((floorY + 1) & 255);
+    uint8_t hashBAPlus1 = permutationTable[hashBPlus1 & 255] + ((floorZ + 1) & 255);
+    uint8_t hashBBPlus1 = permutationTable[(hashBPlus1 + 1) & 255] + ((floorZ + 1) & 255);
+
+    double dotProductAAB = gradient_dot_product_3d(permutationTable[hashAAPlus1], fractionalX, fractionalY, fractionalZ - 1);
+    double dotProductBAB = gradient_dot_product_3d(permutationTable[hashBAPlus1], fractionalX - 1, fractionalY, fractionalZ - 1);
+    double dotProductABB = gradient_dot_product_3d(permutationTable[hashABPlus1], fractionalX, fractionalY - 1, fractionalZ - 1);
+    double dotProductBBB = gradient_dot_product_3d(permutationTable[hashBBPlus1], fractionalX - 1, fractionalY - 1, fractionalZ - 1);
+
+    double interpolatedXYBottom = dotProductAAA + fadedX * (dotProductBAA - dotProductAAA);
+    double interpolatedXYTop = dotProductABA + fadedX * (dotProductBBA - dotProductABA);
+    double interpolatedZBottom = interpolatedXYBottom + fadedY * (interpolatedXYTop - interpolatedXYBottom);
+
+    double interpolatedXYBottomZ1 = dotProductAAB + fadedX * (dotProductBAB - dotProductAAB);
+    double interpolatedXYTopZ1 = dotProductABB + fadedX * (dotProductBBB - dotProductABB);
+    double interpolatedZTop = interpolatedXYBottomZ1 + fadedY * (interpolatedXYTopZ1 - interpolatedXYBottomZ1);
+
+    double finalNoiseValue = interpolatedZBottom + fadedZ * (interpolatedZTop - interpolatedZBottom);
+
+    return finalNoiseValue;
+}
