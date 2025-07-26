@@ -1,8 +1,11 @@
 #ifndef TERRAIN_LOGIC_3D_H
 #define TERRAIN_LOGIC_3D_H
 
+#include<SDL.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // Hard coded permutation table
 extern const uint8_t permutationTable[];

@@ -1,6 +1,5 @@
 #include "terrain_logic_3d.h"
-#include <stdio.h>
-#include <stdlib.h>
+
 
 const uint8_t permutationTable[512] = {
     151,160,137, 91, 90, 15,131, 13,201, 95, 96,155, 68, 11, 27,194,
@@ -78,3 +77,4 @@ double gradient_dot_product_3d(uint8_t permutationHash, double distanceX, double
            gradientVectors3D[index][1] * distanceY + 
            gradientVectors3D[index][2] * distanceZ;
 }
+
