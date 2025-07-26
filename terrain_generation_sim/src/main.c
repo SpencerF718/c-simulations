@@ -8,7 +8,15 @@
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
-const double FEATURE_SCALE = 10.0;
+const double FEATURE_SCALE_2D = 10.0;
+const double FEATURE_SCALE_3D = 10.0;
+
+typedef enum {
+    MODE_2D,
+    MODE_3D
+} SimulationMode;
+
+SimulationMode currentSimulationMode = MODE_2D;
 
 int main(int argc, char* argv[]) {
 
@@ -51,6 +59,17 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_1:
+                        currentSimulationMode = MODE_2D;
+                        printf("Switched to 2D Terrain Generation Mode\n");
+                        break;
+                    case SDLK_2:
+                        currentSimulationMode = MODE_3D;
+                        printf("Switched to 3D Terrain Generation Mode\n");
+                        break;
+                }
             }
         }
 
