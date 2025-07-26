@@ -10,8 +10,8 @@
 // Hard coded permutation table
 extern const uint8_t permutationTable[];
 
-// Array to hold gradient vectors
-const double gradientVectors3D[16][3];
+// Array to hold 3D gradient vectors
+extern const double gradientVectors3D[16][3];
 
 // Structure to hold the dimensions of 3D terrain with an array that holds the data
 typedef struct {
@@ -26,14 +26,6 @@ Terrain3D* terrain3d_init(int width, int heigh, int depth);
 
 // Frees the allocated memory for the Terrain3D struct
 void terrain3d_free(Terrain3D* terrain);
-
-/*
-   Implementation of "smootherstep" function
-            6t^5 - 15t^4 + 10t^3
-        =   t^3(6t^2 - 15t + 10)
-        =   t * t * t * (t * (t * 6 - 15) + 10)
-*/
-double perlin_fade(double interpolationFactor);
 
 // Generates 3D perlin noise based on xyz coordinates
 double perlin_noise_3d(double x, double y, double z);
