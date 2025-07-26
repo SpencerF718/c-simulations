@@ -27,4 +27,7 @@ void terrain3d_free(Terrain3D* terrain);
 */
 double perlin_fade(double interpolationFactor);
 
+// Generates 3D perlin noise based on xyz coordinates
+double perlin_noise_3d(double x, double y, double z);
+
 #endif
