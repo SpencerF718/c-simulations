@@ -79,8 +79,8 @@ int main(int argc, char* argv[]) {
         for (int y = 0; y < WINDOW_HEIGHT; ++y) {
             for (int x = 0; x < WINDOW_WIDTH; ++x) {
 
-                double normalizedX = (double)x / WINDOW_WIDTH * FEATURE_SCALE;
-                double normalizedY = (double)y / WINDOW_HEIGHT * FEATURE_SCALE;
+                double normalizedX = (double)x / WINDOW_WIDTH * FEATURE_SCALE_2D;
+                double normalizedY = (double)y / WINDOW_HEIGHT * FEATURE_SCALE_2D;
 
                 double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
 
