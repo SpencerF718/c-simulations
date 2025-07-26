@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include <math.h>
 
+// Hard coded permutation table
+extern const uint8_t permutationTable[];
+
+// Array to hold gradient vectors
+const double gradientVectors3D[16][3];
 
 // Structure to hold the dimensions of 3D terrain with an array that holds the data
 typedef struct {
