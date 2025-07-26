@@ -30,4 +30,7 @@ double perlin_fade(double interpolationFactor);
 // Generates 3D perlin noise based on xyz coordinates
 double perlin_noise_3d(double x, double y, double z);
 
+// Calculates dot product of a selected gradient vector and 3D distance vector
+double gradient_dot_product_3d(uint8_t permutationHash, double distanceX, double distanceY, double distanceZ);
+
 #endif

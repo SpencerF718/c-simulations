@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+const double gradientVectors3D[16][3] = {
+    {1, 1, 0}, {-1, 1, 0}, {1, -1, 0}, {-1, -1, 0},
+    {1, 0, 1}, {-1, 0, 1}, {1, 0, -1}, {-1, 0, -1},
+    {0, 1, 1}, {0, -1, 1}, {0, 1, -1}, {0, -1, -1},
+    {1, 1, 0}, {-1, 1, 0}, {0, -1, 1}, {0, -1, -1}
+};
+
 Terrain3D* terrain3d_init(int width, int height, int depth) {
     Terrain3D* terrain = (Terrain3D*)calloc(1, sizeof(Terrain3D));
 
@@ -42,4 +49,12 @@ void terrain3d_free(Terrain3D* terrain) {
 double perlin_fade(double interpolationFactor) {
     double t = interpolationFactor;
     return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+double gradient_dot_product_3d(uint8_t permutationHash, double distanceX, double distanceY, double distanceZ) {
+    // Bitwise optimization. Same as % 16
+    int index = permutationHash & 0xF;
+    return gradientVectors3D[index][0] * distanceX + 
+           gradientVectors3D[index][1] * distanceY + 
+           gradientVectors3D[index][2] * distanceZ;
 }
