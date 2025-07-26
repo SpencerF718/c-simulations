@@ -85,7 +85,7 @@ double perlin_noise_3d(double x, double y, double z) {
 
     double fractionalX = x - floorX;
     double fractionalY = y - floorY;
-    double fractionalZ = z - floorz;
+    double fractionalZ = z - floorZ;
 
     double fadedX = perlin_fade(fractionalX);
     double fadedY = perlin_fade(fractionalY);
