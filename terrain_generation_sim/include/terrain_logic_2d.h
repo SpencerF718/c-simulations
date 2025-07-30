@@ -60,4 +60,7 @@ double perlin_noise_2d(double xCoordinate, double yCoordinate);
 // Creates and returns color values based on the Perlin noise values
 Color get_terrain_color(double noiseValue);
 
+// Renders the 2D terrain
+void render_2d_terrain(SDL_Renderer* renderer, double featureScale2D, int windowWidth, int windowHeight);
+
 #endif

@@ -110,3 +110,19 @@ Color get_terrain_color(double noiseValue) {
 
     return color;
 }
+
+void render_2d_terrain(SDL_Renderer* renderer, double featureScale2D, int windowWidth, int windowHeight) {
+    for (int y = 0; y < windowHeight; ++y) {
+        for (int x = 0; x < windowWidth; ++x) {
+
+            double normalizedX = (double)x / windowWidth * featureScale2D;
+            double normalizedY = (double)y / windowHeight * featureScale2D;
+
+            double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
+
+            Color pixelColor = get_terrain_color(noiseValue);
+            SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
+}

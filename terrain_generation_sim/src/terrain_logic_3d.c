@@ -1,3 +1,4 @@
+#include "terrain_logic_2d.h"
 #include "terrain_logic_3d.h"
 
 const double gradientVectors3D[16][3] = {
@@ -140,4 +141,25 @@ SDL_Point project_point(Point3D point, double cameraX, double cameraY, double ca
     projectedPoint.y = (int)((-translatedY * focalLength / translatedZ) + windowHeight / 2);
 
     return projectedPoint;
+}
+
+void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, double cameraX, double cameraY, double cameraZ, double cameraPitch, double fov, int windowWidth, int windowHeight) {
+    const double STEP_SIZE_X = 0.1;
+    const double STEP_SIZE_Y = 0.1;
+
+    for (double y = 0; y < featureScale3D; y += STEP_SIZE_Y) {
+        for (double x = 0; x < featureScale3D; x += STEP_SIZE_X) {
+
+            double noiseValue = perlin_noise_3d(x, y, zCoordinateOffset);
+            double zCoord = noiseValue * 2.0;
+
+            Point3D terrainPoint = {x, y, zCoord};
+            SDL_Point projectedScreenPoint = project_point(terrainPoint, cameraX, cameraY, cameraZ, cameraPitch, fov, windowWidth, windowHeight);
+
+            Color pixelColor = get_terrain_color(noiseValue);
+
+            SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
+            SDL_RenderDrawPoint(renderer, projectedScreenPoint.x, projectedScreenPoint.y);
+        }
+    }
 }
