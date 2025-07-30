@@ -5,14 +5,20 @@
 
 const int WINDOW_HEIGHT = 800;
 const int WINDOW_WIDTH = 800;
+
 const double FEATURE_SCALE_2D = 10.0;
 const double FEATURE_SCALE_3D = 10.0;
+
 const double Z_COORDINATE_OFFSET = 0.0;
-const double CAMERA_X = FEATURE_SCALE_3D / 2.0;
-const double CAMERA_Y = FEATURE_SCALE_3D / 2.0 - 9.0;
-const double CAMERA_Z = -10.0;
-const double CAMERA_PITCH = 75.0;
+
+static double cameraX = FEATURE_SCALE_3D / 2.0;
+static double cameraY = FEATURE_SCALE_3D / 2.0 - 9.0;
+static double cameraZ = -10.0;
+static double cameraPitch = 75.0;
 const double FOV = 90.0;
+
+const double CAMERA_MOVE_SPEED = 0.5;
+const double CAMERA_ROTATION_SPEED = 2.0;
 
 typedef enum {
     MODE_2D,
@@ -72,6 +78,40 @@ int main(int argc, char* argv[]) {
                         currentSimulationMode = MODE_3D;
                         printf("Switched to 3D Terrain Generation Mode\n");
                         break;
+                    case SDLK_w:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraY -= CAMERA_MOVE_SPEED * cos(cameraPitch * M_PI / 180.0);
+                            cameraZ -= CAMERA_MOVE_SPEED * sin(cameraPitch * M_PI / 180.0);
+                        }
+                        break;
+                    case SDLK_s:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraY += CAMERA_MOVE_SPEED * cos(cameraPitch * M_PI / 180.0);
+                            cameraZ += CAMERA_MOVE_SPEED * sin(cameraPitch * M_PI / 180.0);
+                        }
+                        break;
+                    case SDLK_a:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraX -= CAMERA_MOVE_SPEED;
+                        }
+                        break;
+                    case SDLK_d:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraX += CAMERA_MOVE_SPEED;
+                        }
+                        break;
+                    case SDLK_UP:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraPitch += CAMERA_ROTATION_SPEED;
+                            if (cameraPitch > 90.0) cameraPitch = 90.0; 
+                        }
+                        break;
+                    case SDLK_DOWN:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraPitch -= CAMERA_ROTATION_SPEED;
+                            if (cameraPitch < -90.0) cameraPitch = -90.0;
+                        }
+                        break;
                 }
             }
         }
@@ -108,7 +148,7 @@ int main(int argc, char* argv[]) {
 
                     Point3D terrainPoint = {x, y, zCoord};
 
-                    SDL_Point projectedScreenPoint = project_point(terrainPoint, CAMERA_X, CAMERA_Y, CAMERA_Z, CAMERA_PITCH, FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
+                    SDL_Point projectedScreenPoint = project_point(terrainPoint, cameraX, cameraY, cameraZ, cameraPitch, FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 
                     Color pixelColor = get_terrain_color(noiseValue);
 
