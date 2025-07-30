@@ -9,8 +9,9 @@ const double FEATURE_SCALE_2D = 10.0;
 const double FEATURE_SCALE_3D = 10.0;
 const double Z_COORDINATE_OFFSET = 0.0;
 const double CAMERA_X = FEATURE_SCALE_3D / 2.0;
-const double CAMERA_Y = FEATURE_SCALE_3D / 2.0;
+const double CAMERA_Y = FEATURE_SCALE_3D / 2.0 - 9.0;
 const double CAMERA_Z = -10.0;
+const double CAMERA_PITCH = 75.0;
 const double FOV = 90.0;
 
 typedef enum {
@@ -107,7 +108,7 @@ int main(int argc, char* argv[]) {
 
                     Point3D terrainPoint = {x, y, zCoord};
 
-                    SDL_Point projectedScreenPoint = project_point(terrainPoint, CAMERA_X, CAMERA_Y, CAMERA_Z, FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
+                    SDL_Point projectedScreenPoint = project_point(terrainPoint, CAMERA_X, CAMERA_Y, CAMERA_Z, CAMERA_PITCH, FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
 
                     Color pixelColor = get_terrain_color(noiseValue);
 
