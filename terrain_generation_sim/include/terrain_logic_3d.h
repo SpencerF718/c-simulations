@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Hard coded permutation table
 extern const uint8_t permutationTable[];

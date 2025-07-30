@@ -120,15 +120,16 @@ SDL_Point project_point(Point3D point, double cameraX, double cameraY, double ca
     SDL_Point projectedPoint;
 
     double translatedX = point.x - cameraX;
-    double translatedY = point.Y - cameraY;
-    double translatedZ = point.Z - cameraZ;
-
-    if (translatedZ + fov <= 0) {
-        translatedZ = -fov + 0.001;
+    double translatedY = point.y - cameraY;
+    double translatedZ = point.z - cameraZ;
+    if (translatedZ <= 0.01) {
+        translatedZ = 0.01;
     }
 
-    projectedPoint.x = (int)((translatedX * fov / (translatedZ + fov)) + windowWidth / 2);
-    projectedPoint.y = (int)((translatedY * fov / (translatedZ + fov)) + windowHeight / 2);
+    double focalLength = (windowWidth / 2.0) / tan(fov * 0.5 * M_PI / 180.0);
+
+    projectedPoint.x = (int)((translatedX * focalLength / translatedZ) + windowWidth / 2);
+    projectedPoint.y = (int)((-translatedY * focalLength / translatedZ) + windowHeight / 2);
 
     return projectedPoint;
 }
