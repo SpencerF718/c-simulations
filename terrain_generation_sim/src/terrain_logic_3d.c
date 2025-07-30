@@ -114,3 +114,21 @@ double perlin_noise_3d(double x, double y, double z) {
 
     return finalNoiseValue;
 }
+
+SDL_Point project_point(Point3D point, double cameraX, double cameraY, double cameraZ, double fov, int windowWidth, int windowHeight) {
+
+    SDL_Point projectedPoint;
+
+    double translatedX = point.x - cameraX;
+    double translatedY = point.Y - cameraY;
+    double translatedZ = point.Z - cameraZ;
+
+    if (translatedZ + fov <= 0) {
+        translatedZ = -fov + 0.001;
+    }
+
+    projectedPoint.x = (int)((translatedX * fov / (translatedZ + fov)) + windowWidth / 2);
+    projectedPoint.y = (int)((translatedY * fov / (translatedZ + fov)) + windowHeight / 2);
+
+    return projectedPoint;
+}
