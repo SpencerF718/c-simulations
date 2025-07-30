@@ -116,7 +116,7 @@ double perlin_noise_3d(double x, double y, double z) {
     return finalNoiseValue;
 }
 
-SDL_Point project_point(Point3D point, double cameraX, double cameraY, double cameraZ, double cameraPitch, double fov, int windowWidth, int windowHeight) {
+SDL_Point project_point(Point3D point, double cameraX, double cameraY, double cameraZ, double cameraPitch, double cameraYaw, double fov, int windowWidth, int windowHeight) {
 
     SDL_Point projectedPoint;
 
@@ -124,12 +124,19 @@ SDL_Point project_point(Point3D point, double cameraX, double cameraY, double ca
     double translatedY = point.y - cameraY;
     double translatedZ = point.z - cameraZ;
 
-    double pitchRad = cameraPitch * M_PI / 180.0;
-    double rotatedY = translatedY * cos(pitchRad) - translatedZ * sin(pitchRad);
-    double rotatedZ = translatedY * sin(pitchRad) + translatedZ * cos(pitchRad);
+    double yawRad = cameraYaw * M_PI / 180.0;
+    double rotatedX = translatedX * cos(yawRad) - translatedZ * sin(yawRad);
+    double rotatedZ = translatedX * sin(yawRad) + translatedZ * cos(yawRad);
 
-    translatedY = rotatedY;
+    translatedX = rotatedX;
     translatedZ = rotatedZ;
+
+    double pitchRad = cameraPitch * M_PI / 180.0;
+    double finalRotatedY = translatedY * cos(pitchRad) - translatedZ * sin(pitchRad);
+    double finalRotatedZ = translatedY * sin(pitchRad) + translatedZ * cos(pitchRad);
+
+    translatedY = finalRotatedY;
+    translatedZ = finalRotatedZ;
 
     if (translatedZ <= 0.01) {
         translatedZ = 0.01;
@@ -143,7 +150,7 @@ SDL_Point project_point(Point3D point, double cameraX, double cameraY, double ca
     return projectedPoint;
 }
 
-void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, double cameraX, double cameraY, double cameraZ, double cameraPitch, double fov, int windowWidth, int windowHeight) {
+void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, double cameraX, double cameraY, double cameraZ, double cameraPitch, double cameraYaw, double fov, int windowWidth, int windowHeight) {
     const double STEP_SIZE_X = 0.1;
     const double STEP_SIZE_Y = 0.1;
 
@@ -154,7 +161,7 @@ void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCo
             double zCoord = noiseValue * 2.0;
 
             Point3D terrainPoint = {x, y, zCoord};
-            SDL_Point projectedScreenPoint = project_point(terrainPoint, cameraX, cameraY, cameraZ, cameraPitch, fov, windowWidth, windowHeight);
+            SDL_Point projectedScreenPoint = project_point(terrainPoint, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
 
             Color pixelColor = get_terrain_color(noiseValue);
 

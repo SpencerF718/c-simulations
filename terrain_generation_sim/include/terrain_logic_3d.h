@@ -42,9 +42,9 @@ double perlin_noise_3d(double x, double y, double z);
 double gradient_dot_product_3d(uint8_t permutationHash, double distanceX, double distanceY, double distanceZ);
 
 // Projects a 3D point onto a 2D plane
-SDL_Point project_point(Point3D point, double cameraX, double cameraY, double cameraZ, double cameraPitch, double fov, int windowWidth, int windowHeight);
+SDL_Point project_point(Point3D point, double cameraX, double cameraY, double cameraZ, double cameraPitch, double cameraYaw, double fov, int windowWidth, int windowHeight);
 
 // Renderes the 3D terrain
-void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, double cameraX, double cameraY, double cameraZ, double cameraPitch, double fov, int windowWidth, int windowHeight);
+void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, double cameraX, double cameraY, double cameraZ, double cameraPitch, double cameraYaw, double fov, int windowWidth, int windowHeight);
 
 #endif
