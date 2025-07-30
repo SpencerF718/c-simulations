@@ -29,12 +29,6 @@ typedef struct {
     double z;
 } Point3D;
 
-typedef struct {
-    Point3D p1;
-    Point3D p2;
-    Point3D p3;
-} Triangle;
-
 // Initialize a new Terrain3D struct
 Terrain3D* terrain3d_init(int width, int heigh, int depth);
 
