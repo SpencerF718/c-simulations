@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "terrain_logic_2d.h"
 
 // Hard coded permutation table
 extern const uint8_t permutationTable[];
@@ -28,6 +29,13 @@ typedef struct {
     double y;
     double z;
 } Point3D;
+
+typedef struct {
+    Point3D p1;
+    Point3D p2;
+    Point3D p3;
+    Color color;
+} Triangle;
 
 // Initialize a new Terrain3D struct
 Terrain3D* terrain3d_init(int width, int heigh, int depth);
