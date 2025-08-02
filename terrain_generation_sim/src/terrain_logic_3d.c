@@ -116,8 +116,9 @@ double perlin_noise_3d(double x, double y, double z) {
     return finalNoiseValue;
 }
 
-SDL_Point project_point(Point3D point, Camera* camera, int windowWidth, int windowHeight) {
-    SDL_Point projectedPoint;
+ProjectedPoint project_point(Point3D point, Camera* camera, int windowWidth, int windowHeight) {
+    ProjectedPoint projected;
+
     double translatedX = point.x - camera->x;
     double translatedY = point.y - camera->y;
     double translatedZ = point.z - camera->z;
@@ -126,27 +127,19 @@ SDL_Point project_point(Point3D point, Camera* camera, int windowWidth, int wind
     double rotatedX = translatedX * cos(yawRadians) - translatedZ * sin(yawRadians);
     double rotatedZ = translatedX * sin(yawRadians) + translatedZ * cos(yawRadians);
 
-    translatedX = rotatedX;
-    translatedZ = rotatedZ;
-
     double pitchRadians = camera->pitch * M_PI / 180.0;
-    double finalRotatedY = translatedY * cos(pitchRadians) - translatedZ * sin(pitchRadians);
-    double finalRotatedZ = translatedY * sin(pitchRadians) + translatedZ * cos(pitchRadians);
+    double rotatedY = translatedY * cos(pitchRadians) - rotatedZ * sin(pitchRadians);
+    rotatedZ = translatedY * sin(pitchRadians) + rotatedZ * cos(pitchRadians);
 
-    finalRotatedY = -finalRotatedY;
+    projected.viewSpaceZ = rotatedZ;
 
-    translatedY = finalRotatedY;
-    translatedZ = finalRotatedZ;
-
-    if (translatedZ <= 0.01) {
-        translatedZ = 0.01;
-    }
+    if (rotatedZ <= 0.01) rotatedZ = 0.01;
 
     double focalLength = (windowWidth / 2.0) / tan(camera->fov * 0.5 * M_PI / 180.0);
-    projectedPoint.x = (int)((translatedX * focalLength / translatedZ) + windowWidth / 2);
-    projectedPoint.y = (int)((translatedY * focalLength / translatedZ) + windowHeight / 2);
+    projected.screenPoint.x = (int)((rotatedX * focalLength / rotatedZ) + windowWidth / 2);
+    projected.screenPoint.y = (int)((-rotatedY * focalLength / rotatedZ) + windowHeight / 2);
 
-    return projectedPoint;
+    return projected;
 }
 
 void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, Camera* camera, int windowWidth, int windowHeight) {
@@ -168,27 +161,36 @@ void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCo
             Point3D point3DP01 = {currentX, yCoordP01, currentZ + TERRAIN_3D_STEP_SIZE};
             Point3D point3DP11 = {currentX + TERRAIN_3D_STEP_SIZE, yCoordP11, currentZ + TERRAIN_3D_STEP_SIZE};
 
-            SDL_Point projectedScreenPointP00 = project_point(point3DP00, camera, windowWidth, windowHeight);
-            SDL_Point projectedScreenPointP10 = project_point(point3DP10, camera, windowWidth, windowHeight);
-            SDL_Point projectedScreenPointP01 = project_point(point3DP01, camera, windowWidth, windowHeight);
-            SDL_Point projectedScreenPointP11 = project_point(point3DP11, camera, windowWidth, windowHeight);
-
             Color colorP00 = get_terrain_color(noiseValueP00);
             Color colorP10 = get_terrain_color(noiseValueP10);
             Color colorP01 = get_terrain_color(noiseValueP01);
             Color colorP11 = get_terrain_color(noiseValueP11);
 
-            SDL_SetRenderDrawColor(renderer, colorP00.r, colorP00.g, colorP00.b, 0xFF);
-            SDL_RenderDrawLine(renderer, projectedScreenPointP00.x, projectedScreenPointP00.y, projectedScreenPointP10.x, projectedScreenPointP10.y);
+            ProjectedPoint projectedP00 = project_point(point3DP00, camera, windowWidth, windowHeight);
+            ProjectedPoint projectedP10 = project_point(point3DP10, camera, windowWidth, windowHeight);
+            ProjectedPoint projectedP01 = project_point(point3DP01, camera, windowWidth, windowHeight);
+            ProjectedPoint projectedP11 = project_point(point3DP11, camera, windowWidth, windowHeight);
 
-            SDL_SetRenderDrawColor(renderer, colorP10.r, colorP10.g, colorP10.b, 0xFF);
-            SDL_RenderDrawLine(renderer, projectedScreenPointP10.x, projectedScreenPointP10.y, projectedScreenPointP11.x, projectedScreenPointP11.y);
+            if (projectedP00.viewSpaceZ > 0 && projectedP10.viewSpaceZ > 0) {
+                SDL_SetRenderDrawColor(renderer, colorP00.r, colorP00.g, colorP00.b, 0xFF);
+                SDL_RenderDrawLine(renderer, projectedP00.screenPoint.x, projectedP00.screenPoint.y, projectedP10.screenPoint.x, projectedP10.screenPoint.y);
+            }
 
-            SDL_SetRenderDrawColor(renderer, colorP11.r, colorP11.g, colorP11.b, 0xFF);
-            SDL_RenderDrawLine(renderer, projectedScreenPointP11.x, projectedScreenPointP11.y, projectedScreenPointP01.x, projectedScreenPointP01.y);
+            if (projectedP10.viewSpaceZ > 0 && projectedP11.viewSpaceZ > 0) {
+                SDL_SetRenderDrawColor(renderer, colorP10.r, colorP10.g, colorP10.b, 0xFF);
+                SDL_RenderDrawLine(renderer, projectedP10.screenPoint.x, projectedP10.screenPoint.y, projectedP11.screenPoint.x, projectedP11.screenPoint.y);
+            }
 
-            SDL_SetRenderDrawColor(renderer, colorP01.r, colorP01.g, colorP01.b, 0xFF);
-            SDL_RenderDrawLine(renderer, projectedScreenPointP01.x, projectedScreenPointP01.y, projectedScreenPointP00.x, projectedScreenPointP00.y);
+            if (projectedP11.viewSpaceZ > 0 && projectedP01.viewSpaceZ > 0) {
+                SDL_SetRenderDrawColor(renderer, colorP11.r, colorP11.g, colorP11.b, 0xFF);
+                SDL_RenderDrawLine(renderer, projectedP11.screenPoint.x, projectedP11.screenPoint.y, projectedP01.screenPoint.x, projectedP01.screenPoint.y);
+            }
+
+            if (projectedP01.viewSpaceZ > 0 && projectedP00.viewSpaceZ > 0) {
+                SDL_SetRenderDrawColor(renderer, colorP01.r, colorP01.g, colorP01.b, 0xFF);
+                SDL_RenderDrawLine(renderer, projectedP01.screenPoint.x, projectedP01.screenPoint.y, projectedP00.screenPoint.x, projectedP00.screenPoint.y);
+            }
+
         }
     }
 }

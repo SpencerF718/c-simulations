@@ -32,7 +32,7 @@ typedef struct {
     double z;
 } Point3D;
 
-// Camera struct to hold camera properties
+// Structure to hold camera properties
 typedef struct {
     double x;
     double y;
@@ -43,6 +43,12 @@ typedef struct {
     double moveSpeed;
     double rotationSpeed;
 } Camera;
+
+// Structure to hold projected point values
+typedef struct {
+    SDL_Point screenPoint;
+    double viewSpaceZ;
+} ProjectedPoint;
 
 // Initialize a new Terrain3D struct
 Terrain3D* terrain3d_init(int width, int heigh, int depth);
@@ -57,7 +63,7 @@ double perlin_noise_3d(double x, double y, double z);
 double gradient_dot_product_3d(uint8_t permutationHash, double distanceX, double distanceY, double distanceZ);
 
 // Projects a 3D point onto a 2D plane
-SDL_Point project_point(Point3D point, Camera* camera, int windowWidth, int windowHeight);
+ProjectedPoint project_point(Point3D point, Camera* camera, int windowWidth, int windowHeight);
 
 // Renderes the 3D terrain
 void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, Camera* camera, int windowWidth, int windowHeight);
