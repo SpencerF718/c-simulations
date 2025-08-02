@@ -116,20 +116,20 @@ double perlin_noise_3d(double x, double y, double z) {
     return finalNoiseValue;
 }
 
-SDL_Point project_point(Point3D point, double cameraX, double cameraY, double cameraZ, double cameraPitch, double cameraYaw, double fov, int windowWidth, int windowHeight) {
+SDL_Point project_point(Point3D point, Camera* camera, int windowWidth, int windowHeight) {
     SDL_Point projectedPoint;
-    double translatedX = point.x - cameraX;
-    double translatedY = point.y - cameraY;
-    double translatedZ = point.z - cameraZ;
+    double translatedX = point.x - camera->x;
+    double translatedY = point.y - camera->y;
+    double translatedZ = point.z - camera->z;
 
-    double yawRadians = cameraYaw * M_PI / 180.0;
+    double yawRadians = camera->yaw * M_PI / 180.0;
     double rotatedX = translatedX * cos(yawRadians) - translatedZ * sin(yawRadians);
     double rotatedZ = translatedX * sin(yawRadians) + translatedZ * cos(yawRadians);
 
     translatedX = rotatedX;
     translatedZ = rotatedZ;
 
-    double pitchRadians = cameraPitch * M_PI / 180.0;
+    double pitchRadians = camera->pitch * M_PI / 180.0;
     double finalRotatedY = translatedY * cos(pitchRadians) - translatedZ * sin(pitchRadians);
     double finalRotatedZ = translatedY * sin(pitchRadians) + translatedZ * cos(pitchRadians);
 
@@ -142,48 +142,42 @@ SDL_Point project_point(Point3D point, double cameraX, double cameraY, double ca
         translatedZ = 0.01;
     }
 
-    double focalLength = (windowWidth / 2.0) / tan(fov * 0.5 * M_PI / 180.0);
+    double focalLength = (windowWidth / 2.0) / tan(camera->fov * 0.5 * M_PI / 180.0);
     projectedPoint.x = (int)((translatedX * focalLength / translatedZ) + windowWidth / 2);
     projectedPoint.y = (int)((translatedY * focalLength / translatedZ) + windowHeight / 2);
 
     return projectedPoint;
 }
 
-void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, double cameraX, double cameraY, double cameraZ, double cameraPitch, double cameraYaw, double fov, int windowWidth, int windowHeight) {
+void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCoordinateOffset, Camera* camera, int windowWidth, int windowHeight) {
     for (double currentZ = 0; currentZ < featureScale3D - TERRAIN_3D_STEP_SIZE; currentZ += TERRAIN_3D_STEP_SIZE) {
         for (double currentX = 0; currentX < featureScale3D - TERRAIN_3D_STEP_SIZE; currentX += TERRAIN_3D_STEP_SIZE) {
 
-            // Perlin noise now uses currentX and currentZ for horizontal plane, output determines Y (height)
             double noiseValueP00 = perlin_noise_3d(currentX, currentZ, zCoordinateOffset);
             double noiseValueP10 = perlin_noise_3d(currentX + TERRAIN_3D_STEP_SIZE, currentZ, zCoordinateOffset);
             double noiseValueP01 = perlin_noise_3d(currentX, currentZ + TERRAIN_3D_STEP_SIZE, zCoordinateOffset);
             double noiseValueP11 = perlin_noise_3d(currentX + TERRAIN_3D_STEP_SIZE, currentZ + TERRAIN_3D_STEP_SIZE, zCoordinateOffset);
 
-            // Assign noise values to yCoord (height)
             double yCoordP00 = noiseValueP00 * 2.0;
             double yCoordP10 = noiseValueP10 * 2.0;
             double yCoordP01 = noiseValueP01 * 2.0;
             double yCoordP11 = noiseValueP11 * 2.0;
 
-            // Create Point3D with X, Y (height), Z (depth)
             Point3D point3DP00 = {currentX, yCoordP00, currentZ};
             Point3D point3DP10 = {currentX + TERRAIN_3D_STEP_SIZE, yCoordP10, currentZ};
             Point3D point3DP01 = {currentX, yCoordP01, currentZ + TERRAIN_3D_STEP_SIZE};
             Point3D point3DP11 = {currentX + TERRAIN_3D_STEP_SIZE, yCoordP11, currentZ + TERRAIN_3D_STEP_SIZE};
 
-            // Project points to 2D screen
-            SDL_Point projectedScreenPointP00 = project_point(point3DP00, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
-            SDL_Point projectedScreenPointP10 = project_point(point3DP10, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
-            SDL_Point projectedScreenPointP01 = project_point(point3DP01, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
-            SDL_Point projectedScreenPointP11 = project_point(point3DP11, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
+            SDL_Point projectedScreenPointP00 = project_point(point3DP00, camera, windowWidth, windowHeight);
+            SDL_Point projectedScreenPointP10 = project_point(point3DP10, camera, windowWidth, windowHeight);
+            SDL_Point projectedScreenPointP01 = project_point(point3DP01, camera, windowWidth, windowHeight);
+            SDL_Point projectedScreenPointP11 = project_point(point3DP11, camera, windowWidth, windowHeight);
 
-            // Calculate colors for each point
             Color colorP00 = get_terrain_color(noiseValueP00);
             Color colorP10 = get_terrain_color(noiseValueP10);
             Color colorP01 = get_terrain_color(noiseValueP01);
             Color colorP11 = get_terrain_color(noiseValueP11);
 
-            // Draw lines with corresponding colors
             SDL_SetRenderDrawColor(renderer, colorP00.r, colorP00.g, colorP00.b, 0xFF);
             SDL_RenderDrawLine(renderer, projectedScreenPointP00.x, projectedScreenPointP00.y, projectedScreenPointP10.x, projectedScreenPointP10.y);
 
