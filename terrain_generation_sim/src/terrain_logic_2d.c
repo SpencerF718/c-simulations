@@ -1,4 +1,4 @@
-#include "terrain_logic.h"
+#include "terrain_logic_2d.h"
 
 
 const uint8_t permutationTable[512] = {
@@ -27,7 +27,13 @@ const double gradientVectors[16][2] =  {
     {1, 0}, {-1, 0}, {0, 1}, {0, -1}
 };
 
-double perlin_fade(double interpolationFactor) {
+/*
+   Implementation of "smootherstep" function
+            6t^5 - 15t^4 + 10t^3 
+        =   t^3(6t^2 - 15t + 10)
+        =   t * t * t * (t * (t * 6 - 15) + 10)
+*/
+static double perlin_fade(double interpolationFactor) {
     double t = interpolationFactor; 
     return t * t * t * (t * (t * 6 - 15) + 10);
 }
@@ -99,8 +105,24 @@ Color get_terrain_color(double noiseValue) {
         color.r = (uint8_t)(COLOR_SNOW_R_FACTOR * normalizedNoise);
         color.g = (uint8_t)(COLOR_SNOW_G_FACTOR * normalizedNoise);
         color.b = (uint8_t)(COLOR_SNOW_B_FACTOR * normalizedNoise);
-        
+
     }
 
     return color;
+}
+
+void render_2d_terrain(SDL_Renderer* renderer, double featureScale2D, int windowWidth, int windowHeight) {
+    for (int y = 0; y < windowHeight; ++y) {
+        for (int x = 0; x < windowWidth; ++x) {
+
+            double normalizedX = (double)x / windowWidth * featureScale2D;
+            double normalizedY = (double)y / windowHeight * featureScale2D;
+
+            double noiseValue = perlin_noise_2d(normalizedX, normalizedY);
+
+            Color pixelColor = get_terrain_color(noiseValue);
+            SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+    }
 }

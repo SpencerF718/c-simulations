@@ -1,5 +1,5 @@
-#ifndef TERRAIN_LOGIC_H
-#define TERRAIN_LOGIC_H
+#ifndef TERRAIN_LOGIC_2D_H
+#define TERRAIN_LOGIC_2D_H
 
 #include <SDL.h>
 #include <math.h>
@@ -51,14 +51,6 @@ typedef struct Color {
     uint8_t b;
 } Color;
 
-/*
-   Implementation of "smootherstep" function
-            6t^5 - 15t^4 + 10t^3 
-        =   t^3(6t^2 - 15t + 10)
-        =   t * t * t * (t * (t * 6 - 15) + 10)
-*/
-double perlin_fade(double interpolationFactor);
-
 // Calculates dot product of a selected gradient vector and distance vector
 double gradient_dot_product(uint8_t permutationHash, double distanceX, double distanceY);
 
@@ -67,5 +59,8 @@ double perlin_noise_2d(double xCoordinate, double yCoordinate);
 
 // Creates and returns color values based on the Perlin noise values
 Color get_terrain_color(double noiseValue);
+
+// Renders the 2D terrain
+void render_2d_terrain(SDL_Renderer* renderer, double featureScale2D, int windowWidth, int windowHeight);
 
 #endif
