@@ -81,24 +81,40 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_w:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraY -= CAMERA_MOVE_SPEED * cos(cameraPitch * M_PI / 180.0);
-                            cameraZ -= CAMERA_MOVE_SPEED * sin(cameraPitch * M_PI / 180.0);
+                            double yawRadians = cameraYaw * M_PI / 180.0;
+                            cameraX += CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ += CAMERA_MOVE_SPEED * cos(yawRadians);
                         }
                         break;
                     case SDLK_s:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraY += CAMERA_MOVE_SPEED * cos(cameraPitch * M_PI / 180.0);
-                            cameraZ += CAMERA_MOVE_SPEED * sin(cameraPitch * M_PI / 180.0);
+                            double yawRadians = cameraYaw * M_PI / 180.0;
+                            cameraX -= CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ -= CAMERA_MOVE_SPEED * cos(yawRadians);
                         }
                         break;
                     case SDLK_a:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraX -= CAMERA_MOVE_SPEED;
+                            double yawRadians = (cameraYaw - 90.0) * M_PI / 180.0;
+                            cameraX += CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ += CAMERA_MOVE_SPEED * cos(yawRadians);
                         }
                         break;
                     case SDLK_d:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraX += CAMERA_MOVE_SPEED;
+                            double yawRadians = (cameraYaw + 90.0) * M_PI / 180.0;
+                            cameraX += CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ += CAMERA_MOVE_SPEED * cos(yawRadians);
+                        }
+                        break;
+                    case SDLK_SPACE:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraY += CAMERA_MOVE_SPEED;
+                        }
+                        break;
+                    case SDLK_LCTRL:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraY -= CAMERA_MOVE_SPEED;
                         }
                         break;
                     case SDLK_UP:
