@@ -171,15 +171,22 @@ void render_3d_terrain(SDL_Renderer* renderer, double featureScale3D, double zCo
             SDL_Point projectedScreenPointP01 = project_point(point3DP01, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
             SDL_Point projectedScreenPointP11 = project_point(point3DP11, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, fov, windowWidth, windowHeight);
 
-            Color pixelColor = get_terrain_color(noiseValueP00);
-            SDL_SetRenderDrawColor(renderer, pixelColor.r, pixelColor.g, pixelColor.b, 0xFF);
+            Color colorP00 = get_terrain_color(noiseValueP00);
+            Color colorP10 = get_terrain_color(noiseValueP10);
+            Color colorP01 = get_terrain_color(noiseValueP01);
+            Color colorP11 = get_terrain_color(noiseValueP11);
 
+            SDL_SetRenderDrawColor(renderer, colorP00.r, colorP00.g, colorP00.b, 0xFF);
             SDL_RenderDrawLine(renderer, projectedScreenPointP00.x, projectedScreenPointP00.y, projectedScreenPointP10.x, projectedScreenPointP10.y);
-            SDL_RenderDrawLine(renderer, projectedScreenPointP10.x, projectedScreenPointP10.y, projectedScreenPointP01.x, projectedScreenPointP01.y);
-            SDL_RenderDrawLine(renderer, projectedScreenPointP01.x, projectedScreenPointP01.y, projectedScreenPointP00.x, projectedScreenPointP00.y);
 
+            SDL_SetRenderDrawColor(renderer, colorP10.r, colorP10.g, colorP10.b, 0xFF);
             SDL_RenderDrawLine(renderer, projectedScreenPointP10.x, projectedScreenPointP10.y, projectedScreenPointP11.x, projectedScreenPointP11.y);
+
+            SDL_SetRenderDrawColor(renderer, colorP11.r, colorP11.g, colorP11.b, 0xFF);
             SDL_RenderDrawLine(renderer, projectedScreenPointP11.x, projectedScreenPointP11.y, projectedScreenPointP01.x, projectedScreenPointP01.y);
+
+            SDL_SetRenderDrawColor(renderer, colorP01.r, colorP01.g, colorP01.b, 0xFF);
+            SDL_RenderDrawLine(renderer, projectedScreenPointP01.x, projectedScreenPointP01.y, projectedScreenPointP00.x, projectedScreenPointP00.y);
         }
     }
 }
