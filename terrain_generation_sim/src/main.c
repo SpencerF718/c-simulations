@@ -12,9 +12,10 @@ const double FEATURE_SCALE_3D = 10.0;
 const double Z_COORDINATE_OFFSET = 0.0;
 
 static double cameraX = FEATURE_SCALE_3D / 2.0;
-static double cameraY = FEATURE_SCALE_3D / 2.0 - 9.0;
+static double cameraY = 5.0;
 static double cameraZ = -10.0;
-static double cameraPitch = 75.0;
+static double cameraPitch = 0.0;
+static double cameraYaw = 0.0;
 const double FOV = 90.0;
 
 const double CAMERA_MOVE_SPEED = 0.5;
@@ -80,36 +81,60 @@ int main(int argc, char* argv[]) {
                         break;
                     case SDLK_w:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraY -= CAMERA_MOVE_SPEED * cos(cameraPitch * M_PI / 180.0);
-                            cameraZ -= CAMERA_MOVE_SPEED * sin(cameraPitch * M_PI / 180.0);
+                            double yawRadians = cameraYaw * M_PI / 180.0;
+                            cameraX += CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ += CAMERA_MOVE_SPEED * cos(yawRadians);
                         }
                         break;
                     case SDLK_s:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraY += CAMERA_MOVE_SPEED * cos(cameraPitch * M_PI / 180.0);
-                            cameraZ += CAMERA_MOVE_SPEED * sin(cameraPitch * M_PI / 180.0);
+                            double yawRadians = cameraYaw * M_PI / 180.0;
+                            cameraX -= CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ -= CAMERA_MOVE_SPEED * cos(yawRadians);
                         }
                         break;
                     case SDLK_a:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraX -= CAMERA_MOVE_SPEED;
+                            double yawRadians = (cameraYaw - 90.0) * M_PI / 180.0;
+                            cameraX += CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ += CAMERA_MOVE_SPEED * cos(yawRadians);
                         }
                         break;
                     case SDLK_d:
                         if (currentSimulationMode == MODE_3D) {
-                            cameraX += CAMERA_MOVE_SPEED;
+                            double yawRadians = (cameraYaw + 90.0) * M_PI / 180.0;
+                            cameraX += CAMERA_MOVE_SPEED * sin(yawRadians);
+                            cameraZ += CAMERA_MOVE_SPEED * cos(yawRadians);
+                        }
+                        break;
+                    case SDLK_SPACE:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraY += CAMERA_MOVE_SPEED;
+                        }
+                        break;
+                    case SDLK_LCTRL:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraY -= CAMERA_MOVE_SPEED;
                         }
                         break;
                     case SDLK_UP:
                         if (currentSimulationMode == MODE_3D) {
                             cameraPitch += CAMERA_ROTATION_SPEED;
-                            if (cameraPitch > 90.0) cameraPitch = 90.0; 
                         }
                         break;
                     case SDLK_DOWN:
                         if (currentSimulationMode == MODE_3D) {
                             cameraPitch -= CAMERA_ROTATION_SPEED;
-                            if (cameraPitch < -90.0) cameraPitch = -90.0;
+                        }
+                        break;
+                    case SDLK_LEFT:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraYaw -= CAMERA_ROTATION_SPEED;
+                        }
+                        break;
+                    case SDLK_RIGHT:
+                        if (currentSimulationMode == MODE_3D) {
+                            cameraYaw += CAMERA_ROTATION_SPEED;
                         }
                         break;
                 }
@@ -122,7 +147,7 @@ int main(int argc, char* argv[]) {
         if (currentSimulationMode == MODE_2D) {
             render_2d_terrain(renderer, FEATURE_SCALE_2D, WINDOW_WIDTH, WINDOW_HEIGHT);
         } else if (currentSimulationMode == MODE_3D) {
-            render_3d_terrain(renderer, FEATURE_SCALE_3D, Z_COORDINATE_OFFSET, cameraX, cameraY, cameraZ, cameraPitch, FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
+            render_3d_terrain(renderer, FEATURE_SCALE_3D, Z_COORDINATE_OFFSET, cameraX, cameraY, cameraZ, cameraPitch, cameraYaw, FOV, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
         SDL_RenderPresent(renderer);
     }
