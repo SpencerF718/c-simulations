@@ -12,9 +12,9 @@ const double FEATURE_SCALE_3D = 10.0;
 const double Z_COORDINATE_OFFSET = 0.0;
 
 static double cameraX = FEATURE_SCALE_3D / 2.0;
-static double cameraY = FEATURE_SCALE_3D / 2.0 - 9.0;
+static double cameraY = 5.0;
 static double cameraZ = -10.0;
-static double cameraPitch = 75.0;
+static double cameraPitch = 0.0;
 static double cameraYaw = 0.0;
 const double FOV = 90.0;
 
@@ -104,13 +104,11 @@ int main(int argc, char* argv[]) {
                     case SDLK_UP:
                         if (currentSimulationMode == MODE_3D) {
                             cameraPitch += CAMERA_ROTATION_SPEED;
-                            if (cameraPitch > 90.0) cameraPitch = 90.0; 
                         }
                         break;
                     case SDLK_DOWN:
                         if (currentSimulationMode == MODE_3D) {
                             cameraPitch -= CAMERA_ROTATION_SPEED;
-                            if (cameraPitch < -90.0) cameraPitch = -90.0;
                         }
                         break;
                     case SDLK_LEFT:
