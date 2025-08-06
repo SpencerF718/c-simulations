@@ -1,5 +1,5 @@
 # c-simulations
-A collection of various simulations, all built in C.
+A collection of various simulations, all built in C. If you want to contribute, please see the [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Current Features
 
