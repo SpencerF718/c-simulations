@@ -20,10 +20,9 @@ A collection of various simulations, all built in C. If you want to contribute, 
 - Ambient, diffuse, and specular lighting
 - Soft shadows
 - Reflections
-- Mouse interaction to control light source[^1]
+- Mouse interaction to control light source
 - Rendering with SDL2
-
-[^1]: Note: This is a single-threaded application and has limited GPU acceleration.  As a result, blazingly fast real time rendering is not expected.
+- Multithreading
 
 ### Terrain Generation Simulation
 
