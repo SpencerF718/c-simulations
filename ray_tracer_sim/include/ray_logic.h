@@ -17,15 +17,15 @@
  * Basic vector, color, ray, sphere, and camera types.
  */
 typedef struct {
-    double x;
-    double y;
-    double z;
+    float x;
+    float y;
+    float z;
 } Vec3;
 
 typedef struct {
-    double x;
-    double y;
-    double z;
+    float x;
+    float y;
+    float z;
 } Color;
 
 typedef struct {
@@ -35,16 +35,16 @@ typedef struct {
 
 typedef struct {
     Vec3 center;
-    double radius;
+    float radius;
     Color color;
-    double reflectivity;
+    float reflectivity;
 } Sphere;
 
 typedef struct {
     Vec3 position;
     Vec3 lookAt;
     Vec3 upVector;
-    double fov;
+    float fov;
 } Camera;
 
 /**
@@ -52,20 +52,20 @@ typedef struct {
  */
 Vec3 vec3_add(Vec3 a, Vec3 b);
 Vec3 vec3_sub(Vec3 a, Vec3 b);
-Vec3 vec3_scale(Vec3 v, double s);
-double vec3_dot(Vec3 a, Vec3 b);
+Vec3 vec3_scale(Vec3 v, float s);
+float vec3_dot(Vec3 a, Vec3 b);
 Vec3 vec3_cross(Vec3 a, Vec3 b);
-double vec3_length(Vec3 v);
+float vec3_length(Vec3 v);
 Vec3 vec3_normalize(Vec3 v);
 
 // function to create a new sphere
-Sphere sphere_create(Vec3 center, double radius, Color color, double reflectivity);
+Sphere sphere_create(Vec3 center, float radius, Color color, float reflectivity);
 
 // function to create a new camera
-Camera camera_create(Vec3 position, Vec3 lookAt, Vec3 upVector, double fov);
+Camera camera_create(Vec3 position, Vec3 lookAt, Vec3 upVector, float fov);
 
 // ray intersection (integer representation of a boolean)
-int ray_intersect_sphere(Ray ray, Sphere sphere, double* intersectionDistance);
+int ray_intersect_sphere(Ray ray, Sphere sphere, float* intersectionDistance);
 
 // function containing the main ray tracing logic for a single ray
 Color trace_ray(
@@ -76,8 +76,8 @@ Color trace_ray(
     Color lightColor,
     Color ambientLight,
     Color specularLightColor,
-    double shininess,
-    double lightRadius,
+    float shininess,
+    float lightRadius,
     int numShadowRays,
     int depth,
     unsigned int *rng_state

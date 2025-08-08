@@ -46,11 +46,11 @@ static int sdlRenderWorker(void *arg) {
                 job->spheres,
                 job->numSpheres,
                 job->lightPos,
-                (Color){1.0, 1.0, 1.0},
-                (Color){0.1, 0.1, 0.1},
-                (Color){1.0, 1.0, 1.0},
+                (Color){1.0f, 1.0f, 1.0f},
+                (Color){0.1f, 0.1f, 0.1f},
+                (Color){1.0f, 1.0f, 1.0f},
                 SHININESS_CONST,
-                0.5,
+                0.5f,
                 job->shadowSamples,
                 0,
                 &seed
@@ -90,31 +90,31 @@ int main(int argc, char* argv[]) {
     uint32_t *pixels = (uint32_t*)malloc((size_t)WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
     if (!pixels) { SDL_DestroyTexture(texture); SDL_DestroyRenderer(renderer); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
 
-    Camera sceneCamera = camera_create((Vec3){0.0, 0.0, 0.0}, (Vec3){0.0, 0.0, -1.0}, (Vec3){0.0, 1.0, 0.0}, DEFAULT_FOV);
+    Camera sceneCamera = camera_create((Vec3){0.0f, 0.0f, 0.0f}, (Vec3){0.0f, 0.0f, -1.0f}, (Vec3){0.0f, 1.0f, 0.0f}, DEFAULT_FOV);
 
     Vec3 cameraForward = vec3_normalize(vec3_sub(sceneCamera.position, sceneCamera.lookAt));
     Vec3 cameraRight = vec3_normalize(vec3_cross(sceneCamera.upVector, cameraForward));
     Vec3 cameraUp = vec3_cross(cameraForward, cameraRight);
 
-    Sphere redSphere = sphere_create((Vec3){0.0, 0.0, -5.0}, 1.0, (Color){1.0, 0.0, 0.0}, 0.8);
-    Sphere blueSphere = sphere_create((Vec3){1.0, -0.5, -3.0}, 0.8, (Color){0.0, 0.0, 1.0}, 0.0);
-    Sphere greenSphere = sphere_create((Vec3){-2.0, 0.5, -7.0}, 1.2, (Color){0.0, 1.0, 0.0}, 0.5);
+    Sphere redSphere = sphere_create((Vec3){0.0f, 0.0f, -5.0f}, 1.0f, (Color){1.0f, 0.0f, 0.0f}, 0.8f);
+    Sphere blueSphere = sphere_create((Vec3){1.0f, -0.5f, -3.0f}, 0.8f, (Color){0.0f, 0.0f, 1.0f}, 0.0f);
+    Sphere greenSphere = sphere_create((Vec3){-2.0f, 0.5f, -7.0f}, 1.2f, (Color){0.0f, 1.0f, 0.0f}, 0.5f);
 
     Sphere sceneSpheres[] = {redSphere, blueSphere, greenSphere};
     int numSpheres = sizeof(sceneSpheres) / sizeof(sceneSpheres[0]);
 
-    Vec3 lightPosition = {5.0, 5.0, 0.0};
+    Vec3 lightPosition = {5.0f, 5.0f, 0.0f};
 
     Vec3 *precompRays = (Vec3*)malloc((size_t)WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(Vec3));
-    double aspectRatio = (double)WINDOW_WIDTH / (double)WINDOW_HEIGHT;
-    double halfFovRad = (sceneCamera.fov / 2.0) * (M_PI / 180.0);
-    double halfHeight = tan(halfFovRad);
-    double halfWidth = aspectRatio * halfHeight;
+    float aspectRatio = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+    float halfFovRad = (sceneCamera.fov / 2.0f) * (3.14159265358979323846f / 180.0f);
+    float halfHeight = tanf(halfFovRad);
+    float halfWidth = aspectRatio * halfHeight;
 
     for (int y = 0; y < WINDOW_HEIGHT; ++y) {
         for (int x = 0; x < WINDOW_WIDTH; ++x) {
-            double uNorm = (double)x / (WINDOW_WIDTH - 1.0) * 2.0 - 1.0;
-            double vNorm = (double)y / (WINDOW_HEIGHT - 1.0) * 2.0 - 1.0;
+            float uNorm = (float)x / ((float)WINDOW_WIDTH - 1.0f) * 2.0f - 1.0f;
+            float vNorm = (float)y / ((float)WINDOW_HEIGHT - 1.0f) * 2.0f - 1.0f;
             Vec3 rdir = {0};
             rdir = vec3_add(rdir, vec3_scale(cameraRight, uNorm * halfWidth));
             rdir = vec3_add(rdir, vec3_scale(cameraUp, vNorm * halfHeight));
@@ -146,9 +146,9 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&ev)) {
             if (ev.type == SDL_QUIT) quit = 1;
             else if (ev.type == SDL_MOUSEMOTION) {
-                job.lightPos.x = ((double)ev.motion.x / WINDOW_WIDTH) * 10.0 - 5.0;
-                job.lightPos.y = ((double)ev.motion.y / WINDOW_HEIGHT) * 10.0 - 5.0;
-                job.lightPos.z = 0.0;
+                job.lightPos.x = ((float)ev.motion.x / (float)WINDOW_WIDTH) * 10.0f - 5.0f;
+                job.lightPos.y = ((float)ev.motion.y / (float)WINDOW_HEIGHT) * 10.0f - 5.0f;
+                job.lightPos.z = 0.0f;
             }
         }
 
