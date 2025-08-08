@@ -1,6 +1,19 @@
 #include "ray_logic.h"
 #include <math.h>
 
+static unsigned int xrng_state = 123456789u;
+static unsigned int xorshift32(void) {
+    unsigned int x = xrng_state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    xrng_state = x;
+    return x;
+}
+static double xrnd_unit() {
+    return (double)(xorshift32() & 0xFFFFFFu) / (double)0x1000000u;
+}
+
 
 Sphere sphere_create(Vec3 center, double radius, Color color, double reflectivity) { 
     Sphere s;
@@ -150,9 +163,11 @@ Color trace_ray(
     double shadowFactor = 0.0;
     int litSamples = 0;
     for (int i = 0; i < numShadowRays; ++i) {
-        double u1 = (double)rand() / RAND_MAX * 2.0 - 1.0;
-        double u2 = (double)rand() / RAND_MAX * 2.0 - 1.0;
-        double u3 = (double)rand() / RAND_MAX * 2.0 - 1.0;
+        
+        double u1 = xrnd_unit() * 2.0 - 1.0;
+        double u2 = xrnd_unit() * 2.0 - 1.0;
+        double u3 = xrnd_unit() * 2.0 - 1.0;
+
         Vec3 randomOffset = {u1, u2, u3};
         randomOffset = vec3_normalize(randomOffset);
         randomOffset = vec3_scale(randomOffset, lightRadius);

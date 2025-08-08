@@ -269,13 +269,13 @@ void fluid_advect_smoke(Fluid* fluidPtr, float deltaTime) {
 }
 
 void fluid_set_obstacle(Fluid* fluidPtr, int x, int y, float isSolidFlag) {
-    
-    int numRows = fluidPtr->numCellsY;
-    size_t cellIndex = (size_t)x * numRows + y;
 
         if (x < 0 || x >= fluidPtr->numCellsX || y < 0 || y >= fluidPtr->numCellsY) { 
         return; 
     }
+
+    int numRows = fluidPtr->numCellsY;
+    size_t cellIndex = (size_t)x * numRows + y;
 
     fluidPtr->solidFlags[cellIndex] = isSolidFlag;
 

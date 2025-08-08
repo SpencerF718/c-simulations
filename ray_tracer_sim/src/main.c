@@ -36,16 +36,36 @@ int main(int argc, char* argv[]) {
         SDL_WINDOW_SHOWN
     );
 
-    if (sdlWindow == NULL) {
+    if (!sdlWindow) {
         SDL_Quit();
         return 1;
     }
 
     sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    
+    if (!sdlRenderer) { 
+        SDL_DestroyWindow(sdlWindow); SDL_Quit(); 
+        return 1;
+    }
 
-    if (sdlRenderer == NULL) {
-        SDL_DestroyWindow(sdlWindow);
+    SDL_Texture* texture = SDL_CreateTexture(sdlRenderer,
+                                             SDL_PIXELFORMAT_RGB888,
+                                             SDL_TEXTUREACCESS_STREAMING,
+                                             WINDOW_WIDTH, WINDOW_HEIGHT);
+    if (!texture) {
+        SDL_DestroyRenderer(sdlRenderer);
+        SDL_DestroyWindow(sdlWindow); 
         SDL_Quit();
+        return 1;
+    }
+
+    uint32_t* pixels = (uint32_t*)malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+
+    if (!pixels) {
+        SDL_DestroyTexture(texture); 
+        SDL_DestroyRenderer(sdlRenderer); 
+        SDL_DestroyWindow(sdlWindow); 
+        SDL_Quit(); 
         return 1;
     }
 
@@ -83,16 +103,30 @@ int main(int argc, char* argv[]) {
     Vec3 lightPosition = {5.0, 5.0, 0.0};
     Color lightColor = {1.0, 1.0, 1.0};
     Color ambientLight = {0.1, 0.1, 0.1};
-
     Color specularLightColor = {1.0, 1.0, 1.0};
     double shininess = SHININESS_CONST;
-
     double lightRadius = 0.5;
 
     double aspectRatio = (double)WINDOW_WIDTH / WINDOW_HEIGHT;
     double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
     double halfHeight = tan(halfFovRad);
     double halfWidth =aspectRatio * halfHeight;
+
+    Vec3* precompRays = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(Vec3));
+
+    for (int y = 0; y < WINDOW_HEIGHT; ++y) {
+        for (int x = 0; x < WINDOW_WIDTH; ++x) {
+            double uNorm = (double)x / (WINDOW_WIDTH - 1.0) * 2.0 - 1.0;
+            double vNorm = (double)y / (WINDOW_HEIGHT - 1.0) * 2.0 - 1.0;
+
+            Vec3 rdir = {0};
+            rdir = vec3_add(rdir, vec3_scale(cameraRight, uNorm * halfWidth));
+            rdir = vec3_add(rdir, vec3_scale(cameraUp, vNorm * halfHeight));
+            rdir = vec3_sub(rdir, cameraForward);
+            rdir = vec3_normalize(rdir);
+            precompRays[y * WINDOW_WIDTH + x] = rdir;
+        }
+    }
 
     int quitApplication = 0;
     SDL_Event eventHandler;
@@ -111,21 +145,11 @@ int main(int argc, char* argv[]) {
                 lightPosition.z = 0.0;
             }
         }
-        SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xFF);
-        SDL_RenderClear(sdlRenderer);
 
         for (int y = 0; y < WINDOW_HEIGHT; y++) {
             for (int x = 0; x < WINDOW_WIDTH; x++) {
 
-                double uNorm = (double)x / (WINDOW_WIDTH - 1.0) * 2.0 - 1.0;
-                double vNorm = (double)y / (WINDOW_HEIGHT - 1.0) * 2.0 - 1.0;
-
-                Vec3 rayDirection = {0};
-                rayDirection = vec3_add(rayDirection, vec3_scale(cameraRight, uNorm * halfWidth));
-                rayDirection = vec3_add(rayDirection, vec3_scale(cameraUp, vNorm * halfHeight));
-                rayDirection = vec3_sub(rayDirection, cameraForward);
-
-                rayDirection = vec3_normalize(rayDirection);
+                Vec3 rayDirection = precompRays[y * WINDOW_WIDTH + x];
                 Ray primaryRay = {sceneCamera.position, rayDirection};
 
                 Color pixelColor = trace_ray(
@@ -146,10 +170,15 @@ int main(int argc, char* argv[]) {
                 Uint8 g = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.y)) * 255);
                 Uint8 b = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.z)) * 255);
 
-                SDL_SetRenderDrawColor(sdlRenderer, r, g, b, 0XFF);
-                SDL_RenderDrawPoint(sdlRenderer, x, y);
+                uint32_t pixel = (r << 16) | (g << 8) | (b);
+                pixels[y * WINDOW_WIDTH + x] = pixel;
+
             }
         }
+
+        SDL_UpdateTexture(texture, NULL, pixels, WINDOW_WIDTH * sizeof(uint32_t));
+        SDL_RenderClear(sdlRenderer);
+        SDL_RenderCopy(sdlRenderer, texture, NULL, NULL);
         SDL_RenderPresent(sdlRenderer);
 
         frameCount++;
@@ -164,6 +193,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    free(precompRays);
+    free(pixels);
+    SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdlRenderer);
     SDL_DestroyWindow(sdlWindow);
     SDL_Quit();
