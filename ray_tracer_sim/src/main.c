@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdatomic.h>
 #include "ray_logic.h"
 
 #ifdef _MSC_VER
@@ -13,112 +14,107 @@
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 800;
 
+typedef struct {
+    Camera camera;
+    Sphere *spheres;
+    int numSpheres;
+    Vec3 *precompRays;
+    int width;
+    int height;
+    Vec3 lightPos;
+    int shadowSamples;
+    uint32_t *pixels;
+    atomic_int nextRow;
+} RenderJob;
+
+static int sdlRenderWorker(void *arg) {
+    RenderJob *job = (RenderJob *)arg;
+    unsigned int seed = (unsigned int)time(NULL);
+    seed ^= (unsigned int)(uintptr_t)job;
+    seed ^= (unsigned int)SDL_GetTicks();
+    if (seed == 0) seed = 0x1234567u;
+
+    while (1) {
+        int y = atomic_fetch_add(&job->nextRow, 1);
+        if (y >= job->height) break;
+        uint32_t *rowPtr = job->pixels + (size_t)y * job->width;
+        for (int x = 0; x < job->width; ++x) {
+            Vec3 dir = job->precompRays[y * job->width + x];
+            Ray primary = { job->camera.position, dir };
+            Color col = trace_ray(
+                primary,
+                job->spheres,
+                job->numSpheres,
+                job->lightPos,
+                (Color){1.0, 1.0, 1.0},
+                (Color){0.1, 0.1, 0.1},
+                (Color){1.0, 1.0, 1.0},
+                SHININESS_CONST,
+                0.5,
+                job->shadowSamples,
+                0,
+                &seed
+            );
+            float rx = fmaxf(0.0f, fminf(1.0f, (float)col.x));
+            float gx = fmaxf(0.0f, fminf(1.0f, (float)col.y));
+            float bx = fmaxf(0.0f, fminf(1.0f, (float)col.z));
+            uint8_t R = (uint8_t)(rx * 255.0f);
+            uint8_t G = (uint8_t)(gx * 255.0f);
+            uint8_t B = (uint8_t)(bx * 255.0f);
+            rowPtr[x] = ((uint32_t)R << 16) | ((uint32_t)G << 8) | (uint32_t)B;
+        }
+    }
+    return 0;
+}
+
 int main(int argc, char* argv[]) {
-
-    (void)argc;
-    (void)argv;
-
-    srand((unsigned int)time(NULL));
-
+    (void)argc; (void)argv;
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         return 1;
     }
 
-    SDL_Window* sdlWindow = NULL;
-    SDL_Renderer* sdlRenderer = NULL;
+    SDL_Window* window = SDL_CreateWindow("Ray Tracer (SDL threads)",
+                                          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                          WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    if (!window) { SDL_Quit(); return 1; }
 
-    sdlWindow = SDL_CreateWindow (
-        "Ray Tracer Simulation",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
-        SDL_WINDOW_SHOWN
-    );
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer) { SDL_DestroyWindow(window); SDL_Quit(); return 1; }
 
-    if (!sdlWindow) {
-        SDL_Quit();
-        return 1;
-    }
-
-    sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    
-    if (!sdlRenderer) { 
-        SDL_DestroyWindow(sdlWindow); SDL_Quit(); 
-        return 1;
-    }
-
-    SDL_Texture* texture = SDL_CreateTexture(sdlRenderer,
+    SDL_Texture* texture = SDL_CreateTexture(renderer,
                                              SDL_PIXELFORMAT_RGB888,
                                              SDL_TEXTUREACCESS_STREAMING,
                                              WINDOW_WIDTH, WINDOW_HEIGHT);
-    if (!texture) {
-        SDL_DestroyRenderer(sdlRenderer);
-        SDL_DestroyWindow(sdlWindow); 
-        SDL_Quit();
-        return 1;
-    }
+    if (!texture) { SDL_DestroyRenderer(renderer); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
 
-    uint32_t* pixels = (uint32_t*)malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+    uint32_t *pixels = (uint32_t*)malloc((size_t)WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint32_t));
+    if (!pixels) { SDL_DestroyTexture(texture); SDL_DestroyRenderer(renderer); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
 
-    if (!pixels) {
-        SDL_DestroyTexture(texture); 
-        SDL_DestroyRenderer(sdlRenderer); 
-        SDL_DestroyWindow(sdlWindow); 
-        SDL_Quit(); 
-        return 1;
-    }
-
-    Vec3 cameraPosition = {0.0, 0.0, 0.0};
-    Vec3 cameraLookAt = {0.0, 0.0, -1.0};
-    Vec3 cameraUpVector = {0.0, 1.0, 0.0};
-    double cameraFov = DEFAULT_FOV;
-    Camera sceneCamera = camera_create(cameraPosition,  cameraLookAt, cameraUpVector, cameraFov);
+    Camera sceneCamera = camera_create((Vec3){0.0, 0.0, 0.0}, (Vec3){0.0, 0.0, -1.0}, (Vec3){0.0, 1.0, 0.0}, DEFAULT_FOV);
 
     Vec3 cameraForward = vec3_normalize(vec3_sub(sceneCamera.position, sceneCamera.lookAt));
     Vec3 cameraRight = vec3_normalize(vec3_cross(sceneCamera.upVector, cameraForward));
     Vec3 cameraUp = vec3_cross(cameraForward, cameraRight);
 
-    Vec3 sphere1Center = {0.0, 0.0, -5.0};
-    double sphere1Radius = 1.0;
-    Color sphere1Color = {1.0, 0.0, 0.0};
-    double sphere1Reflectivity = 0.8;
-    Sphere redSphere = sphere_create(sphere1Center, sphere1Radius, sphere1Color, sphere1Reflectivity);
-
-    Vec3 sphere2Center = {1.0, -0.5, -3.0};
-    double sphere2Radius = 0.8;
-    Color sphere2Color = {0.0, 0.0, 1.0};
-    double sphere2Reflectivity = 0.0;
-    Sphere blueSphere = sphere_create(sphere2Center, sphere2Radius, sphere2Color, sphere2Reflectivity);
-
-    Vec3 sphere3Center = {-2.0, 0.5, -7.0};
-    double sphere3Radius = 1.2;
-    Color sphere3Color = {0.0, 1.0, 0.0};
-    double sphere3Reflectivity = 0.5;
-    Sphere greenSphere = sphere_create(sphere3Center, sphere3Radius, sphere3Color, sphere3Reflectivity);
+    Sphere redSphere = sphere_create((Vec3){0.0, 0.0, -5.0}, 1.0, (Color){1.0, 0.0, 0.0}, 0.8);
+    Sphere blueSphere = sphere_create((Vec3){1.0, -0.5, -3.0}, 0.8, (Color){0.0, 0.0, 1.0}, 0.0);
+    Sphere greenSphere = sphere_create((Vec3){-2.0, 0.5, -7.0}, 1.2, (Color){0.0, 1.0, 0.0}, 0.5);
 
     Sphere sceneSpheres[] = {redSphere, blueSphere, greenSphere};
     int numSpheres = sizeof(sceneSpheres) / sizeof(sceneSpheres[0]);
 
     Vec3 lightPosition = {5.0, 5.0, 0.0};
-    Color lightColor = {1.0, 1.0, 1.0};
-    Color ambientLight = {0.1, 0.1, 0.1};
-    Color specularLightColor = {1.0, 1.0, 1.0};
-    double shininess = SHININESS_CONST;
-    double lightRadius = 0.5;
 
-    double aspectRatio = (double)WINDOW_WIDTH / WINDOW_HEIGHT;
-    double halfFovRad = (cameraFov / 2.0) * (M_PI / 180);
+    Vec3 *precompRays = (Vec3*)malloc((size_t)WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(Vec3));
+    double aspectRatio = (double)WINDOW_WIDTH / (double)WINDOW_HEIGHT;
+    double halfFovRad = (sceneCamera.fov / 2.0) * (M_PI / 180.0);
     double halfHeight = tan(halfFovRad);
-    double halfWidth =aspectRatio * halfHeight;
-
-    Vec3* precompRays = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(Vec3));
+    double halfWidth = aspectRatio * halfHeight;
 
     for (int y = 0; y < WINDOW_HEIGHT; ++y) {
         for (int x = 0; x < WINDOW_WIDTH; ++x) {
             double uNorm = (double)x / (WINDOW_WIDTH - 1.0) * 2.0 - 1.0;
             double vNorm = (double)y / (WINDOW_HEIGHT - 1.0) * 2.0 - 1.0;
-
             Vec3 rdir = {0};
             rdir = vec3_add(rdir, vec3_scale(cameraRight, uNorm * halfWidth));
             rdir = vec3_add(rdir, vec3_scale(cameraUp, vNorm * halfHeight));
@@ -128,78 +124,82 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    int quitApplication = 0;
-    SDL_Event eventHandler;
+    RenderJob job;
+    job.camera = sceneCamera;
+    job.spheres = sceneSpheres;
+    job.numSpheres = numSpheres;
+    job.precompRays = precompRays;
+    job.width = WINDOW_WIDTH;
+    job.height = WINDOW_HEIGHT;
+    job.lightPos = lightPosition;
+    job.shadowSamples = 8;
+    job.pixels = pixels;
+    atomic_init(&job.nextRow, 0);
 
+    int quit = 0;
+    SDL_Event ev;
     Uint32 frameCount = 0;
-    Uint32 lastFpsTime = SDL_GetTicks();
-    char windowTitleBuffer[256];
+    Uint32 lastFps = SDL_GetTicks();
+    char title[128];
 
-    while (!quitApplication) {
-        while (SDL_PollEvent(&eventHandler) != 0) {
-            if (eventHandler.type == SDL_QUIT) {
-                quitApplication = 1;
-            } else if (eventHandler.type == SDL_MOUSEMOTION) {
-                lightPosition.x = ((double)eventHandler.motion.x / WINDOW_WIDTH) * 10.0 - 5.0;
-                lightPosition.y = ((double)eventHandler.motion.y / WINDOW_HEIGHT) * 10.0 - 5.0;
-                lightPosition.z = 0.0;
+    while (!quit) {
+        while (SDL_PollEvent(&ev)) {
+            if (ev.type == SDL_QUIT) quit = 1;
+            else if (ev.type == SDL_MOUSEMOTION) {
+                job.lightPos.x = ((double)ev.motion.x / WINDOW_WIDTH) * 10.0 - 5.0;
+                job.lightPos.y = ((double)ev.motion.y / WINDOW_HEIGHT) * 10.0 - 5.0;
+                job.lightPos.z = 0.0;
             }
         }
 
-        for (int y = 0; y < WINDOW_HEIGHT; y++) {
-            for (int x = 0; x < WINDOW_WIDTH; x++) {
+        int nthreads = SDL_GetCPUCount();
+        if (nthreads < 1) nthreads = 1;
 
-                Vec3 rayDirection = precompRays[y * WINDOW_WIDTH + x];
-                Ray primaryRay = {sceneCamera.position, rayDirection};
+        SDL_Thread **threads = (SDL_Thread**)malloc(sizeof(SDL_Thread*) * nthreads);
+        if (!threads) break;
 
-                Color pixelColor = trace_ray(
-                    primaryRay,
-                    sceneSpheres,
-                    numSpheres,
-                    lightPosition,
-                    lightColor,
-                    ambientLight,
-                    specularLightColor,
-                    shininess,
-                    lightRadius,
-                    NUM_SHADOW_RAYS,
-                    0
-                );
-
-                Uint8 r = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.x)) * 255);
-                Uint8 g = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.y)) * 255);
-                Uint8 b = (Uint8)(fmax(0.0, fmin(1.0, pixelColor.z)) * 255);
-
-                uint32_t pixel = (r << 16) | (g << 8) | (b);
-                pixels[y * WINDOW_WIDTH + x] = pixel;
-
+        atomic_store(&job.nextRow, 0);
+        for (int i = 0; i < nthreads; ++i) {
+            char nameBuf[32];
+            snprintf(nameBuf, sizeof(nameBuf), "rtWorker_%d", i);
+            threads[i] = SDL_CreateThread(sdlRenderWorker, nameBuf, &job);
+            if (!threads[i]) {
+                nthreads = i;
+                break;
             }
         }
+
+        for (int i = 0; i < nthreads; ++i) {
+            int ret;
+            SDL_WaitThread(threads[i], &ret);
+            (void)ret;
+        }
+
+        free(threads);
 
         SDL_UpdateTexture(texture, NULL, pixels, WINDOW_WIDTH * sizeof(uint32_t));
-        SDL_RenderClear(sdlRenderer);
-        SDL_RenderCopy(sdlRenderer, texture, NULL, NULL);
-        SDL_RenderPresent(sdlRenderer);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
 
         frameCount++;
-        Uint32 currentTime = SDL_GetTicks();
-
-        if (currentTime - lastFpsTime >= ONE_SECOND) {
-            double fps = frameCount / ((currentTime - lastFpsTime) / ONE_SECOND);
-            snprintf(windowTitleBuffer, sizeof(windowTitleBuffer), "Ray Tracer Simulation - FPS: %.2f", fps);
-            SDL_SetWindowTitle(sdlWindow, windowTitleBuffer);
+        Uint32 now = SDL_GetTicks();
+        if (now - lastFps >= ONE_SECOND) {
+            double fps = frameCount / ((now - lastFps) / (double)ONE_SECOND);
+            snprintf(title, sizeof(title), "Ray Tracer (SDL threads) - FPS: %.2f", fps);
+            SDL_SetWindowTitle(window, title);
             frameCount = 0;
-            lastFpsTime = currentTime;
+            lastFps = now;
         }
     }
 
     free(precompRays);
     free(pixels);
     SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(sdlRenderer);
-    SDL_DestroyWindow(sdlWindow);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     SDL_Quit();
-
+    
     return 0;
 }
 
