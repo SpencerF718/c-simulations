@@ -10,7 +10,7 @@
 #define DEFAULT_FOV 90
 #define ONE_SECOND 1000.0f
 #define SHININESS_CONST 64.0
-#define NUM_SHADOW_RAYS 32
+#define NUM_SHADOW_RAYS 8
 #define MAX_RECURSION_DEPTH 3
 
 // 3D vector struct
