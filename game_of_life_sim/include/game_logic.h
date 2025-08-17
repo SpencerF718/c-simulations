@@ -1,4 +1,4 @@
-#ifdef GAME_LOGIC_H
+#ifndef GAME_LOGIC_H
 #define GAME_LOGIC_H
 
 #include <stdbool.h>
@@ -8,11 +8,11 @@
 typedef struct {
     size_t numRows;
     size_t numCols;
-    bool **cells*;
+    bool **cells;
 } GameGrid;
 
 
-GameGrid* initializeGride(size_t numRows, size_t numCols);
+GameGrid* initializeGrid(size_t numRows, size_t numCols);
 
 
 #endif
