@@ -27,7 +27,7 @@ SDL_CFLAGS = $(shell pkg-config --cflags sdl2)
 SDL_LIBS = $(shell pkg-config --libs sdl2)
 
 CFLAGS += $(SDL_CFLAGS) $(SDL_TTF_CFLAGS)
-LDFLAGS = $(SDL_LIBS) $(SDL_TTF_LIBS)
+LDFLAGS = $(SDL_LIBS) $(SDL_TTF_LIBS) -lm
 
 .PHONY: all
 all: $(BUILD_DIR)/$(TARGET)
