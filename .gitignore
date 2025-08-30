@@ -59,4 +59,4 @@ dkms.conf
 
 # Editor specific files
 .vscode/
-
+compile_flags.txt
