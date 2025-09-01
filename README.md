@@ -36,8 +36,6 @@ A collection of various simulations, all built in C. If you want to contribute, 
 
 #### 3D Terrain Generation
 
-#### 3D Terrain Generation
-
 ![Demo of 3D Terrain Generator](assets/images/3D_terrain_generation.png)
 
 - Perlin noise-based 3D terrain generation
